@@ -1,6 +1,59 @@
-// Telegram Web App
+// Telegram Web App — force DARK native chrome on ALL versions
 const tg = window.Telegram?.WebApp;
-if (tg) { tg.expand(); tg.ready(); document.body.classList.add('tg-theme'); }
+if (tg) {
+    try { tg.ready(); } catch(e) {}
+    try { tg.expand(); } catch(e) {}
+
+    const DARK = '#0f0f1a';
+    const ver = parseFloat(tg.version || '6.0');
+
+    // Telegram v6.0 does NOT support hex for setHeaderColor/setBackgroundColor —
+    // it only accepts the keyword 'bg_color' or 'secondary_bg_color' (which follow
+    // the user's Telegram theme = WHITE for light-mode users). So on v6.0 the
+    // native chrome cannot be forced dark from JS; we must at least NOT let the
+    // SDK default to white. On v6.1+ hex works. On v6.9+ setBottomBarColor works.
+    // Strategy: force themeParams to dark BEFORE the SDK broadcasts defaults,
+    // then call every setter in try/catch so failures don't abort.
+    try {
+        if (tg.themeParams) {
+            tg.themeParams.bg_color = DARK;
+            tg.themeParams.secondary_bg_color = DARK;
+            tg.themeParams.text_color = '#ffffff';
+        }
+    } catch(e) {}
+
+    // Try hex first (v6.1+), fall back to keyword (v6.0)
+    try { tg.setHeaderColor(DARK); } catch(e) {
+        try { tg.setHeaderColor('bg_color'); } catch(e2) {}
+    }
+    try { tg.setBackgroundColor(DARK); } catch(e) {
+        try { tg.setBackgroundColor('bg_color'); } catch(e2) {}
+    }
+    try { tg.setBottomBarColor && tg.setBottomBarColor(DARK); } catch(e) {
+        try { tg.setBottomBarColor && tg.setBottomBarColor('bg_color'); } catch(e2) {}
+    }
+
+    // Directly postEvent bypasses the SDK's version check — some Telegram
+    // clients accept the event even if the JS SDK thinks they don't.
+    try {
+        const post = (event, data) => {
+            const payload = JSON.stringify(data);
+            if (window.TelegramWebviewProxy && window.TelegramWebviewProxy.postEvent) {
+                window.TelegramWebviewProxy.postEvent(event, payload);
+            } else if (window.external && 'notify' in window.external) {
+                window.external.notify(JSON.stringify({ eventType: event, eventData: data }));
+            } else if (window.parent !== window) {
+                window.parent.postMessage(JSON.stringify({ eventType: event, eventData: data }), 'https://web.telegram.org');
+            }
+        };
+        post('web_app_set_header_color', { color: DARK });
+        post('web_app_set_background_color', { color: DARK });
+        post('web_app_set_bottom_bar_color', { color: DARK });
+    } catch(e) {}
+
+    // DO NOT add 'tg-theme' class — it pulls in Telegram's light-mode theme vars
+    // document.body.classList.add('tg-theme');
+}
 
 // State
 let state = {
@@ -10,9 +63,42 @@ let state = {
     currentVoter: 0, selectedSuspect: null
 };
 
+// Safe HTML escape
+function esc(s) {
+    const d = document.createElement('div');
+    d.textContent = s;
+    return d.innerHTML;
+}
+
+// Safe localStorage wrapper
+function lsGet(key, fallback) {
+    try { return JSON.parse(localStorage.getItem(key)) || fallback; }
+    catch { return fallback; }
+}
+function lsSet(key, val) {
+    try { localStorage.setItem(key, JSON.stringify(val)); } catch {}
+}
+
 // Custom content
-let customChars = JSON.parse(localStorage.getItem('vrushka_chars') || '[]');
-let customPlaces = JSON.parse(localStorage.getItem('vrushka_places') || '[]');
+let customChars = lsGet('vrushka_chars', []);
+let customPlaces = lsGet('vrushka_places', []);
+
+// Fix iOS keyboard viewport jump
+if (window.visualViewport) {
+    window.visualViewport.addEventListener('resize', () => {
+        document.body.style.height = window.visualViewport.height + 'px';
+    });
+    window.visualViewport.addEventListener('scroll', () => {
+        document.body.style.height = window.visualViewport.height + 'px';
+    });
+}
+
+// Prevent iOS scroll bounce when keyboard opens
+document.addEventListener('focusin', (e) => {
+    if (e.target.tagName === 'INPUT') {
+        setTimeout(() => e.target.scrollIntoView({ block: 'center', behavior: 'smooth' }), 300);
+    }
+});
 
 // Init
 document.addEventListener('DOMContentLoaded', () => {
@@ -29,23 +115,50 @@ function showScreen(id) {
 function pick(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
 
 // === SETUP ===
-function initSetup() { setPlayerCount(3); }
+function initSetup() { setPlayerCount(3); updateLiarButtons(); }
 
 function setPlayerCount(n) {
+    // Save existing names before rebuilding
+    const oldInputs = document.querySelectorAll('.player-input');
+    const savedNames = [];
+    oldInputs.forEach(inp => savedNames.push(inp.value));
+
     state.playerCount = n;
     document.querySelectorAll('.count-btn:not(.liar)').forEach(b => b.classList.remove('active'));
     document.querySelectorAll('.count-btn:not(.liar)').forEach(b => { if (b.textContent == n) b.classList.add('active'); });
     const container = document.getElementById('player-names');
     container.innerHTML = '';
     for (let i = 0; i < n; i++) {
-        container.innerHTML += `<div class="input-row"><input type="text" class="input player-input" placeholder="Игрок ${i+1}" data-idx="${i}"></div>`;
+        const saved = savedNames[i] || '';
+        container.innerHTML += `<div class="input-row"><input type="text" class="input player-input" placeholder="Игрок ${i+1}" data-idx="${i}" value="${esc(saved)}"></div>`;
     }
+    // Clamp liars if too many for new player count
+    const maxLiars = Math.max(1, n - 2);
+    if (state.liarCount > maxLiars) setLiarCount(maxLiars);
+    updateLiarButtons();
 }
 
 function setLiarCount(n) {
-    state.liarCount = n;
-    document.querySelectorAll('.count-btn.liar').forEach(b => b.classList.remove('active'));
-    document.querySelectorAll('.count-btn.liar').forEach(b => { if (b.textContent == n) b.classList.add('active'); });
+    const maxLiars = Math.max(1, state.playerCount - 2);
+    state.liarCount = Math.min(n, maxLiars);
+    updateLiarButtons();
+}
+
+function updateLiarButtons() {
+    const maxLiars = Math.max(1, state.playerCount - 2);
+    document.querySelectorAll('.count-btn.liar').forEach(b => {
+        b.classList.remove('active');
+        const val = parseInt(b.textContent);
+        if (val === state.liarCount) b.classList.add('active');
+        // Disable buttons that exceed max
+        if (val > maxLiars) {
+            b.style.opacity = '0.3';
+            b.style.pointerEvents = 'none';
+        } else {
+            b.style.opacity = '1';
+            b.style.pointerEvents = 'auto';
+        }
+    });
 }
 
 function initCategories() {
@@ -113,7 +226,7 @@ function renderCardReveal() {
         <div class="card-pass" id="card-pass">
             <div class="phone-emoji">📱</div>
             <h2>Передай телефон</h2>
-            <div class="player-name">${p.name}</div>
+            <div class="player-name">${esc(p.name)}</div>
             <p style="color:var(--text-dim);margin-top:12px">Нажми чтобы увидеть карточку</p>
             <button class="btn btn-primary" style="margin-top:20px" onclick="revealCard()">ПОКАЗАТЬ КАРТОЧКУ</button>
         </div>
@@ -188,7 +301,7 @@ function renderRound() {
         const isActive = i === state.currentPlayer;
         html += `<div class="player-card ${isActive ? 'active' : ''}" onclick="state.currentPlayer=${i};renderRound()">
             <div>
-                <div class="name">${p.name}</div>
+                <div class="name">${esc(p.name)}</div>
                 ${(state.currentRound === 0 && p.condition) ? `<div class="condition-text">${p.condition.emoji} ${p.condition.text}</div>` : ''}
             </div>
             ${isActive ? '<span class="badge">говорит</span>' : ''}
@@ -234,7 +347,7 @@ function renderVoting() {
     cont.innerHTML = `
         <div style="font-size:50px;text-align:center;margin:20px 0">📱</div>
         <div class="voting-title">Передай телефон</div>
-        <div class="voting-subtitle">${voter.name}</div>
+        <div class="voting-subtitle">${esc(voter.name)}</div>
         <button class="btn btn-primary" style="width:80%;margin:20px auto;display:block" onclick="showVoteOptions()">Я ГОТОВ ГОЛОСОВАТЬ</button>
     `;
 }
@@ -244,20 +357,20 @@ function showVoteOptions() {
     const voter = state.players[state.currentVoter];
     let html = `
         <div style="font-size:40px;text-align:center">🗳️</div>
-        <div class="voting-title">${voter.name}, кого подозреваешь?</div>
+        <div class="voting-title">${esc(voter.name)}, кого подозреваешь?</div>
         <div style="margin-top:16px">
     `;
     state.players.forEach((p, i) => {
         if (i !== state.currentVoter) {
             html += `<div class="vote-btn ${state.selectedSuspect === i ? 'selected' : ''}" onclick="selectSuspect(${i})">
-                <span class="name">${p.name}</span>
+                <span class="name">${esc(p.name)}</span>
                 <span class="check">${state.selectedSuspect === i ? '✅' : '⭕'}</span>
             </div>`;
         }
     });
     html += `</div>`;
     if (state.selectedSuspect !== null) {
-        html += `<button class="btn-vote-confirm" onclick="confirmVote()">👎 Голосую против: ${state.players[state.selectedSuspect].name}</button>`;
+        html += `<button class="btn-vote-confirm" onclick="confirmVote()">👎 Голосую против: ${esc(state.players[state.selectedSuspect].name)}</button>`;
     }
     cont.innerHTML = html;
 }
@@ -328,7 +441,7 @@ function resolveGame() {
         const roleName = p.role === 'liar' ? 'Врушка' : 'Сыщик';
         html += `<div class="result-vote-row">
             <span>${p.role === 'liar' ? '🤥' : '🕵️'}</span>
-            <span class="name">${p.name}</span>
+            <span class="name">${esc(p.name)}</span>
             <span class="role-badge ${badgeClass}">${roleName}</span>
             <span style="color:${vc > 0 ? 'var(--red)' : 'var(--text-dim)'};font-weight:700">✋${vc}</span>
         </div>`;
@@ -357,7 +470,7 @@ function addCustomCharacter() {
     const name = input.value.trim();
     if (!name) return;
     customChars.push({ name, emoji: '🎭' });
-    localStorage.setItem('vrushka_chars', JSON.stringify(customChars));
+    lsSet('vrushka_chars', customChars);
     input.value = '';
     renderCustomLists();
 }
@@ -367,20 +480,20 @@ function addCustomPlace() {
     const name = input.value.trim();
     if (!name) return;
     customPlaces.push({ name, emoji: '📍' });
-    localStorage.setItem('vrushka_places', JSON.stringify(customPlaces));
+    lsSet('vrushka_places', customPlaces);
     input.value = '';
     renderCustomLists();
 }
 
 function removeCustomChar(i) {
     customChars.splice(i, 1);
-    localStorage.setItem('vrushka_chars', JSON.stringify(customChars));
+    lsSet('vrushka_chars', customChars);
     renderCustomLists();
 }
 
 function removeCustomPlace(i) {
     customPlaces.splice(i, 1);
-    localStorage.setItem('vrushka_places', JSON.stringify(customPlaces));
+    lsSet('vrushka_places', customPlaces);
     renderCustomLists();
 }
 
@@ -390,11 +503,11 @@ function renderCustomLists() {
     if (charList) {
         charList.innerHTML = customChars.length === 0
             ? '<div style="text-align:center;color:var(--text-dim);padding:16px;font-size:14px">Пока пусто — добавь персонажей!</div>'
-            : customChars.map((c, i) => `<div class="custom-item"><span>${c.emoji}</span><span class="name">${c.name}</span><button class="del" onclick="removeCustomChar(${i})">✕</button></div>`).join('');
+            : customChars.map((c, i) => `<div class="custom-item"><span>${c.emoji}</span><span class="name">${esc(c.name)}</span><button class="del" onclick="removeCustomChar(${i})">✕</button></div>`).join('');
     }
     if (placeList) {
         placeList.innerHTML = customPlaces.length === 0
             ? '<div style="text-align:center;color:var(--text-dim);padding:16px;font-size:14px">Пока пусто — добавь места!</div>'
-            : customPlaces.map((p, i) => `<div class="custom-item"><span>${p.emoji}</span><span class="name">${p.name}</span><button class="del" onclick="removeCustomPlace(${i})">✕</button></div>`).join('');
+            : customPlaces.map((p, i) => `<div class="custom-item"><span>${p.emoji}</span><span class="name">${esc(p.name)}</span><button class="del" onclick="removeCustomPlace(${i})">✕</button></div>`).join('');
     }
 }
