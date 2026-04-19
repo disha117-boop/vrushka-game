@@ -83,6 +83,134 @@ function lsSet(key, val) {
 let customChars = lsGet('vrushka_chars', []);
 let customPlaces = lsGet('vrushka_places', []);
 
+// ==========================================================================
+// VIDEO REACTIONS MODULE
+// Records 2s of front camera when role is revealed. Uploads to Telegram bot
+// so the video lands in the player's personal chat with @Vrushka2026_bot.
+// Nothing is stored on our servers. Pure transit.
+// ==========================================================================
+const REACTIONS = {
+    enabled: (localStorage.getItem('vrushka_reactions') ?? 'on') !== 'off',
+    backend: 'https://vrushka-reactions.up.railway.app', // set after Railway deploy
+    stream: null,
+    recorder: null,
+    mime: null,
+    _initPromise: null,
+    consent: localStorage.getItem('vrushka_cam_consent') === 'yes'
+};
+
+function reactionsToggle(on) {
+    REACTIONS.enabled = on;
+    localStorage.setItem('vrushka_reactions', on ? 'on' : 'off');
+}
+
+function _pickMime() {
+    if (!window.MediaRecorder) return null;
+    const options = [
+        'video/mp4;codecs=avc1',
+        'video/mp4',
+        'video/webm;codecs=vp9',
+        'video/webm;codecs=vp8',
+        'video/webm',
+    ];
+    for (const m of options) {
+        if (MediaRecorder.isTypeSupported(m)) return m;
+    }
+    return null;
+}
+
+async function _requestCameraOnce() {
+    if (REACTIONS.stream) return REACTIONS.stream;
+    try {
+        const stream = await navigator.mediaDevices.getUserMedia({
+            video: { facingMode: 'user', width: { ideal: 480 }, height: { ideal: 640 } },
+            audio: false
+        });
+        REACTIONS.stream = stream;
+        REACTIONS.consent = true;
+        localStorage.setItem('vrushka_cam_consent', 'yes');
+        return stream;
+    } catch (e) {
+        REACTIONS.enabled = false;
+        return null;
+    }
+}
+
+// Shows a small preview + records `durationMs` of video. Resolves with Blob.
+async function recordReaction(durationMs = 2000) {
+    if (!REACTIONS.enabled) return null;
+    const mime = _pickMime();
+    if (!mime) return null;
+    REACTIONS.mime = mime;
+    const stream = await _requestCameraOnce();
+    if (!stream) return null;
+
+    // Mini preview in corner (only shows while recording)
+    let preview = document.getElementById('reaction-preview');
+    if (!preview) {
+        preview = document.createElement('div');
+        preview.id = 'reaction-preview';
+        preview.style.cssText = `
+            position:fixed; top:12px; right:12px; z-index:9999;
+            width:80px; height:100px; border-radius:12px;
+            overflow:hidden; border:3px solid #e63946;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.4), 0 0 0 3px #000;
+            background:#000; transform: scaleX(-1);
+        `;
+        preview.innerHTML = '<video autoplay muted playsinline style="width:100%;height:100%;object-fit:cover"></video><div style="position:absolute;top:4px;left:4px;background:#e63946;color:#fff;font-family:Bangers;font-size:11px;padding:2px 6px;border-radius:4px;transform:scaleX(-1);letter-spacing:1px">● REC</div>';
+        document.body.appendChild(preview);
+    }
+    const video = preview.querySelector('video');
+    video.srcObject = stream;
+    preview.style.display = 'block';
+
+    return new Promise(resolve => {
+        const chunks = [];
+        const rec = new MediaRecorder(stream, { mimeType: mime, videoBitsPerSecond: 1_200_000 });
+        rec.ondataavailable = e => { if (e.data.size > 0) chunks.push(e.data); };
+        rec.onstop = () => {
+            preview.style.display = 'none';
+            const blob = new Blob(chunks, { type: mime });
+            resolve(blob);
+        };
+        rec.start();
+        setTimeout(() => { try { rec.stop(); } catch {} }, durationMs);
+    });
+}
+
+async function uploadReaction(blob, caption, role) {
+    if (!blob || !window.Telegram?.WebApp?.initData) return;
+    const fd = new FormData();
+    const ext = (REACTIONS.mime && REACTIONS.mime.includes('mp4')) ? 'mp4' : 'webm';
+    fd.append('video', blob, `reaction.${ext}`);
+    fd.append('caption', caption);
+    fd.append('role', role);
+    try {
+        const resp = await fetch(REACTIONS.backend + '/api/upload-reaction', {
+            method: 'POST',
+            headers: { 'X-Init-Data': window.Telegram.WebApp.initData },
+            body: fd
+        });
+        if (resp.status === 409) {
+            // bot_not_started — prompt user to open bot
+            const tg = window.Telegram.WebApp;
+            if (tg?.openTelegramLink) tg.openTelegramLink('https://t.me/Vrushka2026_bot');
+        }
+    } catch (e) {
+        console.warn('reaction upload failed', e);
+    }
+}
+
+// Stop camera when leaving reveal screens (cleanup battery)
+function stopReactionCamera() {
+    if (REACTIONS.stream) {
+        REACTIONS.stream.getTracks().forEach(t => t.stop());
+        REACTIONS.stream = null;
+    }
+    const preview = document.getElementById('reaction-preview');
+    if (preview) preview.remove();
+}
+
 // Fix iOS keyboard viewport jump
 if (window.visualViewport) {
     window.visualViewport.addEventListener('resize', () => {
@@ -110,6 +238,10 @@ document.addEventListener('DOMContentLoaded', () => {
 function showScreen(id) {
     document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
     document.getElementById('screen-' + id).classList.add('active');
+    // Release camera when leaving reveal flow
+    if (id === 'menu' || id === 'result') {
+        stopReactionCamera();
+    }
 }
 
 function pick(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
@@ -239,6 +371,21 @@ function revealCard() {
     document.getElementById('card-pass').style.display = 'none';
     const el = document.getElementById('card-revealed');
     el.style.display = 'block';
+
+    // Record 2-second reaction in background. Fire-and-forget upload.
+    // Records ALL players (liars + detectives) — reactions of sleuths are just as funny.
+    if (REACTIONS.enabled && window.Telegram?.WebApp?.initData) {
+        (async () => {
+            const blob = await recordReaction(2000);
+            if (!blob) return;
+            const roleText = p.role === 'liar' ? 'Врушка' : 'Сыщик';
+            const charInfo = p.role === 'detective'
+                ? ` · ${state.card.character.name} в ${state.card.place.name}`
+                : '';
+            const caption = `🎬 Реакция: ${roleText}${charInfo}`;
+            uploadReaction(blob, caption, p.role).catch(() => {});
+        })();
+    }
 
     if (p.role === 'liar') {
         el.innerHTML = `
@@ -455,6 +602,14 @@ function resolveGame() {
         <div style="font-weight:700">${punishment.text}</div>
     </div>`;
 
+    // Reactions hint
+    if (REACTIONS.enabled && REACTIONS.consent) {
+        html += `<div style="background:#0066ff;color:#fff;border:3px solid #000;border-radius:14px;padding:14px;width:100%;max-width:340px;text-align:center;box-shadow:5px 5px 0 #000;font-family:Bangers;letter-spacing:1px;font-size:15px">
+            🎬 ВАШИ РЕАКЦИИ — В ЛИЧКЕ С БОТОМ<br>
+            <span style="font-size:13px;opacity:0.9">откройте <a href="https://t.me/Vrushka2026_bot" style="color:#ffd600" onclick="openBot(event)">@Vrushka2026_bot</a> и покажите друзьям 😂</span>
+        </div>`;
+    }
+
     // Buttons
     html += `
         <button class="btn btn-primary btn-large" onclick="showScreen('setup')" style="margin-top:8px">🔄 ИГРАТЬ ЕЩЁ</button>
@@ -462,6 +617,16 @@ function resolveGame() {
     `;
 
     cont.innerHTML = html;
+}
+
+function openBot(e) {
+    e.preventDefault();
+    const tg = window.Telegram?.WebApp;
+    if (tg?.openTelegramLink) {
+        tg.openTelegramLink('https://t.me/Vrushka2026_bot');
+    } else {
+        window.open('https://t.me/Vrushka2026_bot', '_blank');
+    }
 }
 
 // === CUSTOM CONTENT ===
