@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="theme-color" content="#1a0033">
+<title>Врушка — Y2K</title>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Space+Mono:wght@400;700&family=VT323&display=swap" rel="stylesheet">
+<style>
+* { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+html, body { min-height:100vh; min-height:100dvh; overflow-x:hidden; }
+body {
+  font-family:'Space Mono', monospace;
+  color:#e0d4ff;
+  background:
+    linear-gradient(180deg, #1a0033 0%, #2d0052 50%, #4a0080 100%);
+  min-height:100vh; min-height:100dvh;
+  position:relative;
+  user-select:none;
+}
+/* Grid floor */
+body::before {
+  content:''; position:fixed; bottom:0; left:0; right:0; height:50vh;
+  background-image:
+    linear-gradient(90deg, transparent 49%, #ff10f0 50%, transparent 51%),
+    linear-gradient(0deg, transparent 49%, #ff10f0 50%, transparent 51%);
+  background-size: 40px 40px;
+  transform: perspective(400px) rotateX(60deg);
+  transform-origin: center top;
+  opacity:0.35;
+  pointer-events:none;
+  z-index:0;
+  mask-image: linear-gradient(180deg, transparent 0%, black 50%);
+  -webkit-mask-image: linear-gradient(180deg, transparent 0%, black 50%);
+}
+/* Scanlines */
+body::after {
+  content:''; position:fixed; inset:0; pointer-events:none; z-index:5;
+  background: repeating-linear-gradient(0deg, transparent 0px, transparent 2px, rgba(255,255,255,0.03) 2px, rgba(255,255,255,0.03) 3px);
+  mix-blend-mode: overlay;
+}
+
+.wrap { position:relative; z-index:2; min-height:100vh; min-height:100dvh; padding:24px 20px; display:flex; flex-direction:column; gap:16px; }
+
+/* Terminal header */
+.term-header {
+  background:#000; border:2px solid #00ffff;
+  padding:10px 14px;
+  font-family:'VT323'; font-size:18px;
+  color:#00ffff; letter-spacing:1px;
+  box-shadow: 0 0 20px rgba(0,255,255,0.5), inset 0 0 20px rgba(0,255,255,0.1);
+  position:relative;
+}
+.term-header::before {
+  content:'● ● ●'; position:absolute; top:-1px; left:10px;
+  background:#000; padding:0 8px; color:#ff10f0; font-size:12px;
+  letter-spacing:4px;
+}
+.term-line { display:block; }
+.term-cursor { display:inline-block; width:10px; height:16px; background:#00ffff; vertical-align:middle; animation: blink 1s steps(1) infinite; }
+@keyframes blink { 50% { opacity:0; } }
+
+.main { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:28px; }
+
+/* Glowing sun disc */
+.sun {
+  width:180px; height:180px; border-radius:50%; position:relative;
+  background: linear-gradient(180deg,
+    #ffeb00 0%, #ffeb00 20%,
+    #ff10f0 20%, #ff10f0 30%,
+    #ffeb00 30%, #ffeb00 40%,
+    #ff10f0 40%, #ff10f0 55%,
+    #ffeb00 55%, #ffeb00 65%,
+    #ff10f0 65%, #ff10f0 100%);
+  box-shadow: 0 0 80px rgba(255,16,240,0.8), 0 0 120px rgba(255,235,0,0.4);
+  animation: pulse 2s ease-in-out infinite alternate;
+}
+@keyframes pulse { from { filter:brightness(0.9); } to { filter:brightness(1.2); } }
+.sun::before {
+  content:'?'; position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);
+  font-family:'Press Start 2P'; font-size:60px; color:#1a0033;
+  text-shadow: 3px 3px 0 #00ffff;
+}
+
+.title-block { text-align:center; }
+.title-main {
+  font-family:'Press Start 2P';
+  font-size:40px; color:#ff10f0;
+  text-shadow:
+    3px 3px 0 #00ffff,
+    6px 6px 0 #1a0033,
+    0 0 30px rgba(255,16,240,0.8);
+  letter-spacing:4px;
+  animation: glitch 3s ease-in-out infinite;
+  line-height:1.2;
+}
+@keyframes glitch {
+  0%, 90%, 100% { transform: translate(0); }
+  92% { transform: translate(-3px, 0); color:#00ffff; }
+  94% { transform: translate(3px, 0); color:#ff10f0; }
+  96% { transform: translate(0, -2px); }
+}
+.title-sub {
+  font-family:'VT323'; font-size:22px;
+  color:#00ffff; margin-top:12px;
+  text-shadow: 0 0 10px rgba(0,255,255,0.8);
+  letter-spacing:3px;
+}
+.title-sub::before, .title-sub::after { content:'>>> '; color:#ff10f0; }
+.title-sub::after { content:' <<<'; }
+
+.buttons { width:100%; max-width:340px; display:flex; flex-direction:column; gap:12px; }
+
+.btn-main {
+  background: linear-gradient(135deg, #ff10f0, #00ffff);
+  color:#1a0033; border:none; padding:20px;
+  font-family:'Press Start 2P'; font-size:20px;
+  letter-spacing:3px; cursor:pointer;
+  position:relative;
+  box-shadow:
+    0 0 0 3px #1a0033,
+    0 0 0 5px #ff10f0,
+    0 0 30px rgba(255,16,240,0.6);
+  clip-path: polygon(8px 0, calc(100% - 8px) 0, 100% 8px, 100% calc(100% - 8px), calc(100% - 8px) 100%, 8px 100%, 0 calc(100% - 8px), 0 8px);
+  transition: transform 0.1s;
+}
+.btn-main:active { transform: scale(0.97); }
+.btn-row { display:flex; gap:10px; }
+.btn-sec {
+  flex:1; background:#1a0033;
+  color:#00ffff; border:2px solid #00ffff;
+  padding:14px 8px; font-family:'VT323';
+  font-size:18px; letter-spacing:3px; cursor:pointer;
+  box-shadow: 0 0 15px rgba(0,255,255,0.4);
+  position:relative;
+}
+.btn-sec::before { content:'[ '; }
+.btn-sec::after { content:' ]'; }
+.btn-sec:active { background:#00ffff; color:#1a0033; }
+
+/* Floating chrome elements */
+.chrome {
+  position:absolute; pointer-events:none;
+  font-family:'Press Start 2P'; font-size:14px;
+  color:transparent;
+  background: linear-gradient(180deg, #e0d4ff 0%, #ff10f0 50%, #00ffff 100%);
+  -webkit-background-clip: text; background-clip:text;
+  letter-spacing:2px;
+}
+.ch-1 { top:90px; right:20px; transform:rotate(15deg); }
+.ch-2 { top:170px; left:15px; transform:rotate(-10deg); font-size:10px; }
+.ch-3 { bottom:280px; right:15px; transform:rotate(8deg); font-size:10px; }
+
+/* Stats bar */
+.stats-bar {
+  font-family:'VT323'; font-size:15px; color:#00ffff;
+  letter-spacing:2px; text-align:center;
+  padding:8px; border:1px dashed rgba(0,255,255,0.4);
+}
+.stats-bar span { color:#ff10f0; }
+
+/* Overlay */
+.overlay {
+  position:fixed; inset:0; z-index:100;
+  display:none; flex-direction:column; align-items:center; justify-content:center;
+  padding:20px; text-align:center;
+  background:#000;
+}
+.overlay.show { display:flex; animation: hack 0.5s; }
+@keyframes hack {
+  0% { background:#fff; }
+  10%, 30%, 50% { background:#ff10f0; }
+  20%, 40%, 60% { background:#00ffff; }
+  100% { background:#000; }
+}
+
+.terminal-box {
+  background:#000; border:2px solid #ff10f0;
+  padding:30px 20px; max-width:320px; width:100%;
+  font-family:'VT323'; font-size:20px;
+  color:#00ffff;
+  box-shadow: 0 0 40px rgba(255,16,240,0.6);
+  position:relative;
+}
+.terminal-box::before {
+  content:'> SYS://BREACH'; position:absolute; top:-12px; left:14px;
+  background:#000; color:#ff10f0; padding:0 8px; font-family:'Press Start 2P'; font-size:10px;
+}
+.term-loading { text-align:left; }
+.term-loading div { margin:2px 0; animation: typ 0.3s steps(20) forwards; overflow:hidden; white-space:nowrap; width:0; }
+.term-loading div:nth-child(1) { animation-delay: 0.1s; }
+.term-loading div:nth-child(2) { animation-delay: 0.3s; }
+.term-loading div:nth-child(3) { animation-delay: 0.5s; }
+.term-loading div:nth-child(4) { animation-delay: 0.7s; color:#ff10f0; font-size:26px; }
+@keyframes typ { to { width:100%; } }
+
+.role-big {
+  font-family:'Press Start 2P'; font-size:28px;
+  color:#ff10f0;
+  text-shadow: 0 0 20px #ff10f0, 2px 2px 0 #00ffff;
+  margin:20px 0 8px;
+  letter-spacing:3px;
+  animation: neon 0.7s ease-in-out infinite alternate;
+}
+@keyframes neon {
+  from { filter: brightness(1); }
+  to { filter: brightness(1.4); }
+}
+
+.close-btn {
+  margin-top:30px; background:#000; border:2px solid #00ffff;
+  color:#00ffff; padding:10px 22px; font-family:'VT323';
+  letter-spacing:3px; font-size:16px; cursor:pointer;
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="term-header">
+    <span class="term-line">> VRUSHKA.EXE v2.0 LOADED</span>
+    <span class="term-line">> PLAYERS DETECTED: 3-8 <span class="term-cursor"></span></span>
+  </div>
+
+  <span class="chrome ch-1">ЦИФРА</span>
+  <span class="chrome ch-2">∆ 404 ∆</span>
+  <span class="chrome ch-3">ERROR_OK</span>
+
+  <div class="main">
+    <div class="sun"></div>
+
+    <div class="title-block">
+      <div class="title-main">ВРУШКА</div>
+      <div class="title-sub">LIE DETECTOR v2k</div>
+    </div>
+
+    <div class="buttons">
+      <button class="btn-main" onclick="reveal()">▶ PLAY.EXE</button>
+      <div class="btn-row">
+        <button class="btn-sec">RULES</button>
+        <button class="btn-sec">CUSTOM</button>
+      </div>
+      <div class="stats-bar">
+        NET: <span>★★★★☆</span> | PING: <span>42ms</span> | GHOSTS: <span>∞</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="overlay">
+  <div class="terminal-box">
+    <div class="term-loading">
+      <div>> SCAN INITIATED...</div>
+      <div>> CROSS-REFERENCE DB...</div>
+      <div>> MATCH FOUND.</div>
+      <div>> IDENTITY: ████████</div>
+    </div>
+    <div class="role-big">LIAR.EXE</div>
+    <div style="font-family:'VT323'; font-size:18px; color:#00ffff; letter-spacing:2px;">
+      ≫ MISSION: DECEIVE THEM ALL ≪
+    </div>
+  </div>
+  <button class="close-btn" onclick="close_()">◁ ESC</button>
+</div>
+
+<script>
+function reveal() {
+  const ov = document.getElementById('overlay');
+  ov.classList.add('show');
+  const divs = ov.querySelectorAll('.term-loading div');
+  divs.forEach(d => { d.style.animation = 'none'; void d.offsetWidth; d.style.animation = ''; });
+}
+function close_() { document.getElementById('overlay').classList.remove('show'); }
+</script>
+</body>
+</html>

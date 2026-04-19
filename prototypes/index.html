@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="theme-color" content="#0f0f1a">
+<title>Врушка — выбор дизайна</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&display=swap" rel="stylesheet">
+<style>
+* { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+html, body { background:#0f0f1a; color:#fff; min-height:100vh; min-height:100dvh; font-family:'Inter', sans-serif; }
+body { padding:20px 16px 40px; overflow-x:hidden; }
+
+.header { text-align:center; margin-bottom:24px; padding-top:16px; }
+.header h1 { font-size:26px; font-weight:900; letter-spacing:-0.5px; }
+.header .tag {
+  display:inline-block; background:rgba(153,255,51,0.15); color:#99ff33;
+  font-size:11px; font-weight:700; padding:4px 10px; border-radius:20px;
+  letter-spacing:1px; text-transform:uppercase; margin-bottom:10px;
+}
+.header p { color:rgba(255,255,255,0.6); font-size:14px; margin-top:6px; }
+
+.grid { display:flex; flex-direction:column; gap:16px; max-width:420px; margin:0 auto; }
+
+.card {
+  border-radius:20px; padding:20px; position:relative;
+  cursor:pointer; overflow:hidden;
+  transition: transform 0.15s;
+  text-decoration:none; display:block; color:inherit;
+  border:1px solid rgba(255,255,255,0.06);
+}
+.card:active { transform: scale(0.98); }
+
+.card-label { font-size:11px; letter-spacing:2px; text-transform:uppercase; opacity:0.7; font-weight:700; }
+.card-title { font-size:24px; font-weight:900; margin-top:4px; letter-spacing:-0.5px; }
+.card-desc { font-size:13px; opacity:0.8; margin-top:8px; line-height:1.4; }
+.card-palette { display:flex; gap:6px; margin-top:14px; }
+.card-palette span { width:24px; height:24px; border-radius:50%; border:1px solid rgba(255,255,255,0.1); }
+.card-go {
+  display:inline-flex; align-items:center; gap:6px; margin-top:14px;
+  font-size:13px; font-weight:700; letter-spacing:0.5px;
+}
+.card-go::after { content:'→'; font-size:16px; }
+
+/* Noir card */
+.card-noir {
+  background: linear-gradient(135deg, #1a1612 0%, #0d0d0d 100%);
+  border-color: rgba(212,165,116,0.3);
+}
+.card-noir .card-label { color:#d4a574; }
+.card-noir .card-title { color:#f4e9d4; }
+.card-noir .card-go { color:#d4a574; }
+.card-noir::after {
+  content:'CONFIDENTIAL'; position:absolute; top:12px; right:-30px;
+  background:#c0392b; color:#fff; font-size:10px; letter-spacing:2px;
+  padding:3px 30px; transform: rotate(35deg); font-weight:700;
+}
+
+/* Comic card */
+.card-comic {
+  background:#ffd600; color:#000; border:3px solid #000;
+  box-shadow: 6px 6px 0 #000;
+  margin-right:6px; margin-bottom:6px;
+}
+.card-comic .card-label { color:#e63946; letter-spacing:3px; }
+.card-comic .card-title {
+  font-family:'Luckiest Guy', 'Inter', sans-serif; letter-spacing:1px;
+  color:#fff; -webkit-text-stroke:2px #000; font-size:30px;
+  text-shadow: 3px 3px 0 #e63946;
+}
+.card-comic .card-desc { color:rgba(0,0,0,0.75); font-weight:500; }
+.card-comic .card-go { color:#e63946; }
+
+/* Board game card */
+.card-board {
+  background: #fef7e0; color:#3a2a1a; border:2px solid #3a2a1a;
+  box-shadow: 0 4px 0 #3a2a1a;
+}
+.card-board .card-label { color:#6a4c93; }
+.card-board .card-title {
+  color:#e76f51; font-style:italic;
+  text-shadow: 2px 2px 0 rgba(58,42,26,0.15);
+}
+.card-board .card-desc { color:rgba(58,42,26,0.75); }
+.card-board .card-go { color:#e76f51; }
+
+/* Y2K card */
+.card-y2k {
+  background: linear-gradient(135deg, #1a0033, #4a0080);
+  border: 1px solid #ff10f0;
+  box-shadow: 0 0 30px rgba(255,16,240,0.25);
+}
+.card-y2k .card-label { color:#00ffff; }
+.card-y2k .card-title {
+  color:#ff10f0;
+  text-shadow: 2px 2px 0 #00ffff, 0 0 15px rgba(255,16,240,0.5);
+}
+.card-y2k .card-desc { color:rgba(224,212,255,0.8); }
+.card-y2k .card-go { color:#00ffff; }
+
+.footer {
+  margin-top:30px; padding:20px; text-align:center;
+  font-size:12px; color:rgba(255,255,255,0.4);
+  max-width:400px; margin-left:auto; margin-right:auto;
+  line-height:1.5;
+}
+.footer strong { color:#99ff33; }
+</style>
+</head>
+<body>
+<div class="header">
+  <div class="tag">⚡ Выбор дизайна</div>
+  <h1>Какую Врушку хочешь?</h1>
+  <p>Тапни карточку — открой прототип. Потыкай кнопки.</p>
+</div>
+
+<div class="grid">
+  <a href="noir/" class="card card-noir">
+    <div class="card-label">Вариант 1 · детектив</div>
+    <div class="card-title">Detective Noir</div>
+    <div class="card-desc">Атмосфера фильма-нуар: кабинет детектива, пишмашинка, полароиды, янтарный свет через жалюзи. Серьёзный и стильный.</div>
+    <div class="card-palette">
+      <span style="background:#0d0d0d"></span>
+      <span style="background:#d4a574"></span>
+      <span style="background:#c0392b"></span>
+      <span style="background:#f4e9d4"></span>
+    </div>
+    <div class="card-go">Открыть прототип</div>
+  </a>
+
+  <a href="comic/" class="card card-comic">
+    <div class="card-label">Вариант 2 · Комикс</div>
+    <div class="card-title">COMIC BOOK POW!</div>
+    <div class="card-desc">Яркий марвеловский комикс: halftone точки, жирные контуры, взрывные "POW!", "BUSTED!". Максимально шерится в соцсети.</div>
+    <div class="card-palette">
+      <span style="background:#ffd600"></span>
+      <span style="background:#e63946"></span>
+      <span style="background:#0066ff"></span>
+      <span style="background:#000"></span>
+    </div>
+    <div class="card-go">Открыть прототип</div>
+  </a>
+
+  <a href="boardgame/" class="card card-board">
+    <div class="card-label">Вариант 3 · Настолка</div>
+    <div class="card-title">Kids Board Game</div>
+    <div class="card-desc">Уютная настольная игра: крафт-бумага, рукописный шрифт, карточки-стикеры, фишки. Тёплый, милый, семейный.</div>
+    <div class="card-palette">
+      <span style="background:#fef7e0"></span>
+      <span style="background:#e76f51"></span>
+      <span style="background:#7cc4a0"></span>
+      <span style="background:#6a4c93"></span>
+    </div>
+    <div class="card-go">Открыть прототип</div>
+  </a>
+
+  <a href="y2k/" class="card card-y2k">
+    <div class="card-label">Вариант 4 · Ретро</div>
+    <div class="card-title">Y2K / VAPORWAVE</div>
+    <div class="card-desc">2004 год, LiveJournal, MSN: неон, CRT-сканлайны, глитч-эффекты, терминал "LIAR.EXE". Для молодёжи и мемов.</div>
+    <div class="card-palette">
+      <span style="background:#1a0033"></span>
+      <span style="background:#ff10f0"></span>
+      <span style="background:#00ffff"></span>
+      <span style="background:#ffeb00"></span>
+    </div>
+    <div class="card-go">Открыть прототип</div>
+  </a>
+</div>
+
+<div class="footer">
+  <strong>Как тестить:</strong> на главном экране — тапни "ИГРАТЬ" чтобы увидеть анимацию раскрытия роли. Это даёт почувствовать общий вайб.<br><br>
+  Основная <a href="../" style="color:#99ff33">Врушка</a> продолжает работать.
+</div>
+</body>
+</html>

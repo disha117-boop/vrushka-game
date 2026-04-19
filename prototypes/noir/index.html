@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="theme-color" content="#0d0d0d">
+<title>Врушка — Noir</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Courier+Prime:wght@400;700&family=Special+Elite&display=swap" rel="stylesheet">
+<style>
+* { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+html, body { background:#0d0d0d; color:#f4e9d4; min-height:100vh; min-height:100dvh; overflow-x:hidden; }
+body {
+  font-family: 'Courier Prime', monospace;
+  background:
+    radial-gradient(circle at 20% 10%, rgba(212,165,116,0.08) 0%, transparent 50%),
+    radial-gradient(circle at 80% 80%, rgba(192,57,43,0.06) 0%, transparent 40%),
+    #0d0d0d;
+  min-height:100vh; min-height:100dvh;
+  position:relative;
+  user-select:none;
+}
+/* Film grain */
+body::before {
+  content:''; position:fixed; inset:0; pointer-events:none; z-index:1;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.4'/%3E%3C/svg%3E");
+  opacity:0.12; mix-blend-mode:overlay;
+}
+/* Venetian blind shadow */
+body::after {
+  content:''; position:fixed; top:0; left:0; right:0; height:55vh; pointer-events:none; z-index:2;
+  background: repeating-linear-gradient(
+    10deg,
+    transparent 0px, transparent 22px,
+    rgba(0,0,0,0.35) 22px, rgba(0,0,0,0.35) 30px
+  );
+  opacity:0.45;
+  mask-image: linear-gradient(180deg, black 0%, transparent 100%);
+  -webkit-mask-image: linear-gradient(180deg, black 0%, transparent 100%);
+}
+.wrap { position:relative; z-index:3; min-height:100vh; min-height:100dvh; padding:40px 24px; display:flex; flex-direction:column; }
+
+/* Case file header */
+.case-header {
+  border:2px solid #d4a574;
+  padding:10px 14px;
+  margin-bottom:32px;
+  position:relative;
+  background:rgba(13,13,13,0.7);
+  transform:rotate(-0.8deg);
+}
+.case-header::before {
+  content:'CONFIDENTIAL'; position:absolute; top:-10px; right:12px;
+  background:#c0392b; color:#fff; padding:3px 10px; font-family:'Bebas Neue'; font-size:12px; letter-spacing:2px;
+  transform:rotate(2deg);
+}
+.case-label { font-size:10px; letter-spacing:3px; color:#d4a574; text-transform:uppercase; }
+.case-num { font-size:14px; color:#f4e9d4; margin-top:2px; }
+.case-stamp {
+  position:absolute; right:-8px; bottom:-10px;
+  border:2px solid #c0392b; color:#c0392b;
+  font-family:'Bebas Neue'; font-size:14px; padding:3px 10px;
+  transform:rotate(-12deg); background:rgba(13,13,13,0.9);
+  letter-spacing:2px;
+}
+
+.main { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:24px; }
+
+/* Magnifier logo */
+.magnifier {
+  width:160px; height:160px; position:relative; margin:20px 0;
+  filter: drop-shadow(0 0 20px rgba(212,165,116,0.4));
+}
+.magnifier-glass {
+  width:130px; height:130px; border-radius:50%;
+  border:6px solid #d4a574;
+  background: radial-gradient(circle at 35% 35%, rgba(244,233,212,0.15), rgba(244,233,212,0.02));
+  position:relative;
+  animation: tilt 4s ease-in-out infinite alternate;
+}
+@keyframes tilt { from { transform:rotate(-8deg); } to { transform:rotate(8deg); } }
+.magnifier-handle {
+  width:12px; height:70px;
+  background: linear-gradient(180deg, #8b6f47, #5a4a30);
+  position:absolute; bottom:-50px; right:-5px;
+  transform: rotate(45deg); transform-origin:top center;
+  border-radius:4px;
+  box-shadow: inset -2px 0 4px rgba(0,0,0,0.5);
+}
+.eye-inside {
+  position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);
+  font-family:'Bebas Neue'; font-size:56px; color:#c0392b;
+  letter-spacing:2px;
+}
+
+.title-block { text-align:center; }
+.title-main {
+  font-family:'Bebas Neue'; font-size:72px; letter-spacing:6px; line-height:1;
+  color:#f4e9d4; text-shadow: 3px 3px 0 #c0392b;
+}
+.title-sub {
+  font-family:'Special Elite'; font-size:14px; color:#d4a574;
+  margin-top:8px; letter-spacing:2px;
+}
+.title-case {
+  font-family:'Special Elite'; font-size:12px; color:#8b7a5a;
+  margin-top:4px; letter-spacing:1px;
+  border-top:1px dashed #3a3228; padding-top:6px; display:inline-block;
+}
+
+.buttons { width:100%; max-width:360px; display:flex; flex-direction:column; gap:10px; margin-top:16px; }
+
+.btn-main {
+  background: linear-gradient(180deg, #d4a574, #b8864a);
+  color:#1a0f00; border:none; padding:20px; font-family:'Bebas Neue';
+  font-size:28px; letter-spacing:4px; cursor:pointer; position:relative;
+  box-shadow: 0 6px 0 #7a5a2f, 0 10px 20px rgba(0,0,0,0.5);
+  transition: transform 0.1s, box-shadow 0.1s;
+  clip-path: polygon(0 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%);
+}
+.btn-main:active { transform: translateY(3px); box-shadow: 0 3px 0 #7a5a2f, 0 5px 10px rgba(0,0,0,0.5); }
+.btn-secondary-row { display:flex; gap:10px; }
+.btn-sec {
+  flex:1; background:transparent; border:2px solid #d4a574; color:#d4a574;
+  padding:14px; font-family:'Bebas Neue'; font-size:18px; letter-spacing:2px;
+  cursor:pointer; transition:all 0.2s;
+}
+.btn-sec:active { background:#d4a574; color:#0d0d0d; }
+
+/* Coffee stain */
+.stain {
+  position:absolute; width:100px; height:100px; border-radius:50%;
+  background: radial-gradient(circle, rgba(92,64,36,0.25) 0%, rgba(92,64,36,0.08) 50%, transparent 70%);
+  pointer-events:none;
+}
+.stain-1 { top:80px; right:20px; }
+.stain-2 { bottom:180px; left:10px; width:70px; height:70px; }
+
+.footer-badge {
+  font-family:'Special Elite'; font-size:10px; color:#5a4a30;
+  text-align:center; letter-spacing:3px; margin-top:20px;
+  border-top:1px dashed #3a3228; padding-top:14px;
+}
+
+/* Role reveal overlay */
+.overlay {
+  position:fixed; inset:0; background:rgba(13,13,13,0.96); z-index:100;
+  display:none; flex-direction:column; align-items:center; justify-content:center;
+  padding:20px; text-align:center;
+}
+.overlay.show { display:flex; animation: flash 0.15s; }
+@keyframes flash {
+  0% { background:#fff; } 100% { background:rgba(13,13,13,0.96); }
+}
+.polaroid {
+  background:#f4e9d4; padding:14px 14px 60px;
+  box-shadow: 8px 8px 30px rgba(0,0,0,0.8), 0 0 0 1px #8b7a5a;
+  transform: rotate(-3deg);
+  max-width:280px; width:100%;
+  position:relative;
+  animation: develop 1.2s ease;
+}
+@keyframes develop {
+  from { filter: brightness(3) blur(10px); opacity:0; }
+  to { filter: brightness(1) blur(0); opacity:1; }
+}
+.polaroid-photo {
+  background: linear-gradient(135deg, #2a2a2a, #1a1a1a);
+  aspect-ratio: 1; display:flex; align-items:center; justify-content:center;
+  color:#c0392b; font-family:'Bebas Neue'; font-size:80px; letter-spacing:4px;
+  border:1px solid #5a4a30;
+  position:relative;
+}
+.polaroid-photo::before {
+  content:''; position:absolute; inset:0;
+  background-image:
+    repeating-linear-gradient(0deg, rgba(0,0,0,0.3) 0px, rgba(0,0,0,0.3) 2px, transparent 2px, transparent 4px);
+  opacity:0.6;
+}
+.polaroid-caption {
+  font-family:'Special Elite'; color:#0d0d0d; font-size:18px;
+  text-align:center; margin-top:16px; letter-spacing:1px;
+}
+.polaroid-stamp {
+  position:absolute; bottom:30px; right:12px;
+  font-family:'Bebas Neue'; font-size:22px;
+  color:#c0392b; border:2px solid #c0392b; padding:3px 8px;
+  transform:rotate(-10deg); letter-spacing:3px;
+}
+.close-overlay {
+  margin-top:30px; background:transparent; border:1px solid #d4a574;
+  color:#d4a574; padding:10px 20px; font-family:'Bebas Neue'; letter-spacing:2px;
+  cursor:pointer; font-size:14px;
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="case-header">
+    <div class="case-label">▪ DOSSIER ▪</div>
+    <div class="case-num">Дело № 047 · Улика 02</div>
+    <div class="case-stamp">СРОЧНО</div>
+  </div>
+
+  <div class="stain stain-1"></div>
+  <div class="stain stain-2"></div>
+
+  <div class="main">
+    <div class="magnifier">
+      <div class="magnifier-glass">
+        <div class="eye-inside">?</div>
+      </div>
+      <div class="magnifier-handle"></div>
+    </div>
+
+    <div class="title-block">
+      <div class="title-main">ВРУШКА</div>
+      <div class="title-sub">— КТО ЛЖЁТ В КОМНАТЕ? —</div>
+      <div class="title-case">свидетелей: 0 · подозреваемых: все</div>
+    </div>
+
+    <div class="buttons">
+      <button class="btn-main" onclick="reveal()">▷ НАЧАТЬ ДОПРОС</button>
+      <div class="btn-secondary-row">
+        <button class="btn-sec">📋 ПРАВИЛА</button>
+        <button class="btn-sec">✎ АРХИВ</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer-badge">
+    — ВХОД ТОЛЬКО ДЛЯ СЛЕДОВАТЕЛЕЙ —
+  </div>
+</div>
+
+<div class="overlay" id="overlay">
+  <div class="polaroid">
+    <div class="polaroid-photo">ВЫ ВРУШКА</div>
+    <div class="polaroid-caption">Дело № 047 · Подозреваемый #3</div>
+    <div class="polaroid-stamp">GUILTY</div>
+  </div>
+  <button class="close-overlay" onclick="closeOverlay()">× ЗАКРЫТЬ ДЕЛО</button>
+</div>
+
+<script>
+function reveal() {
+  document.getElementById('overlay').classList.add('show');
+}
+function closeOverlay() {
+  document.getElementById('overlay').classList.remove('show');
+}
+</script>
+</body>
+</html>
