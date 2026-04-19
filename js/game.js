@@ -90,8 +90,9 @@ let customPlaces = lsGet('vrushka_places', []);
 // Nothing is stored on our servers. Pure transit.
 // ==========================================================================
 const REACTIONS = {
-    enabled: (localStorage.getItem('vrushka_reactions') ?? 'on') !== 'off',
-    backend: 'https://vrushka-reactions.up.railway.app', // set after Railway deploy
+    // DISABLED until Railway backend is deployed. Flip to 'on' default after deploy.
+    enabled: localStorage.getItem('vrushka_reactions') === 'on',
+    backend: 'https://vrushka-reactions.up.railway.app',
     stream: null,
     recorder: null,
     mime: null,
