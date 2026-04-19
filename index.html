@@ -1,318 +1,742 @@
 <!DOCTYPE html>
-<html lang="ru" style="background:#0f0f1a!important">
+<html lang="ru" style="background:#ffd600!important">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta name="theme-color" content="#0f0f1a">
-    <title>Врушка</title>
-    <style>
-/* CRITICAL DARK THEME - INLINED TO BYPASS IOS TELEGRAM CACHE */
-html,body,#app{background:#0f0f1a!important;background-color:#0f0f1a!important;color:#fff!important}
-*{color-scheme:dark!important}
-* { margin: 0; padding: 0; box-sizing: border-box; }
-:root {
-    --bg: #0f0f1a; --lime: #99ff33; --lime-dark: #4de60a;
-    --purple: #9933ff; --pink: #ff33aa; --red: #ff4444; --orange: #ff9933;
-    --text: #ffffff; --text-dim: rgba(255,255,255,0.5);
-    --card-bg: rgba(255,255,255,0.06); --card-border: rgba(255,255,255,0.08);
-    --radius: 16px; --safe-bottom: env(safe-area-inset-bottom, 20px);
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="theme-color" content="#ffd600">
+<title>Врушка — Comic</title>
+<link href="https://fonts.googleapis.com/css2?family=Bangers&family=Luckiest+Guy&family=Space+Grotesk:wght@500;700;800&display=swap" rel="stylesheet">
+<script>
+(function(){
+    function forceBg(){
+        try {
+            document.documentElement.style.setProperty('background','#ffd600','important');
+            if(document.body)document.body.style.setProperty('background','#ffd600','important');
+        } catch(e){}
+    }
+    forceBg();
+    document.addEventListener('DOMContentLoaded',forceBg);
+    window.addEventListener('load',forceBg);
+    setInterval(forceBg, 400);
+})();
+</script>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+html, body, #app {
+    background:#ffd600 !important;
+    background-color:#ffd600 !important;
+    color:#000 !important;
 }
-html::before{content:'';position:fixed;inset:-100px;background:#0f0f1a;z-index:-99999;pointer-events:none}
-body { font-family: -apple-system, 'SF Pro Rounded', 'SF Pro Display', sans-serif; min-height: 100vh; min-height: 100dvh; overflow-x: hidden; -webkit-user-select: none; user-select: none; -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
-#app { min-height: 100vh; min-height: 100dvh; position: relative; }
-.screen { display: none; min-height: 100vh; min-height: 100dvh; padding: 20px; padding-bottom: calc(20px + var(--safe-bottom)); flex-direction: column; background: #0f0f1a; }
-.screen.active { display: flex; animation: fadeIn 0.3s ease; }
-@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-.floating-emojis { position: fixed; top: 0; left: 0; right: 0; bottom: 0; pointer-events: none; z-index: 0; }
-.float-emoji { position: absolute; font-size: 28px; opacity: 0; animation: floatEmoji 3s ease-in-out infinite alternate; will-change: transform, opacity; }
-@keyframes floatEmoji { from { opacity: 0; transform: translateY(0); } to { opacity: 0.5; transform: translateY(-20px); } }
-.menu-content { display: flex; flex-direction: column; align-items: center; justify-content: center; flex: 1; gap: 40px; position: relative; z-index: 1; }
-.logo { text-align: center; }
-.blob-logo { width: 120px; height: 120px; margin: 0 auto 16px; background: linear-gradient(135deg, var(--lime), var(--lime-dark)); border-radius: 50% 50% 50% 45% / 55% 50% 50% 45%; position: relative; box-shadow: 0 0 40px rgba(153, 255, 51, 0.3); animation: blobFloat 2s ease-in-out infinite alternate; will-change: transform; }
-@keyframes blobFloat { from { transform: translateY(6px); } to { transform: translateY(-6px); } }
-.blob-face { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -55%); }
-.blob-eyes { display: flex; gap: 22px; justify-content: center; margin-bottom: 8px; }
-.blob-eye { width: 12px; height: 12px; background: #000; border-radius: 50%; }
-.blob-smirk { width: 30px; height: 10px; margin: 0 auto; border-bottom: 3px solid #000; border-radius: 0 0 50% 50%; transform: rotate(-5deg); }
-.game-title { font-size: 48px; font-weight: 900; background: linear-gradient(90deg, var(--lime), #00e680); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-shadow: none; }
-.game-subtitle { color: var(--text-dim); font-size: 16px; margin-top: 4px; }
-.menu-buttons { width: 100%; max-width: 340px; display: flex; flex-direction: column; gap: 12px; }
-.btn { border: none; cursor: pointer; font-weight: 800; font-size: 16px; border-radius: var(--radius); padding: 16px 24px; transition: transform 0.15s, opacity 0.15s; font-family: inherit; }
-.btn:active { transform: scale(0.97); }
-.btn-primary { background: linear-gradient(90deg, var(--lime), var(--lime-dark)); color: #000; }
-.btn-large { font-size: 20px; padding: 18px 24px; width: 100%; border-radius: 20px; box-shadow: 0 8px 25px rgba(153, 255, 51, 0.2); }
-.btn-danger { background: var(--red); color: #fff; }
-.btn-chip { background: var(--card-bg); color: #fff; flex: 1; font-size: 14px; padding: 14px 10px; border: 1px solid var(--card-border); }
-.btn-row { display: flex; gap: 8px; }
-.btn-back { background: none; border: none; color: var(--text-dim); font-size: 16px; cursor: pointer; font-family: inherit; }
-.btn-add { background: var(--lime); color: #000; border: none; width: 44px; height: 44px; border-radius: 10px; font-size: 20px; font-weight: bold; cursor: pointer; }
-.screen-header { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; }
-.screen-header h2 { font-size: 22px; font-weight: 900; flex: 1; text-align: center; padding-right: 40px; }
-.setup-content { display: flex; flex-direction: column; gap: 20px; overflow-y: auto; flex: 1; -webkit-overflow-scrolling: touch; padding-bottom: 20px; }
-.setup-section { background: var(--card-bg); border-radius: var(--radius); padding: 16px; }
-.setup-section label { font-size: 14px; font-weight: 700; display: block; margin-bottom: 10px; }
-.player-count-row { display: flex; gap: 8px; }
-.count-btn { flex: 1; padding: 12px 0; background: rgba(255,255,255,0.08); border: none; color: #fff; border-radius: 12px; font-size: 18px; font-weight: 800; cursor: pointer; font-family: inherit; transition: all 0.2s; }
-.count-btn.active { background: linear-gradient(180deg, var(--lime), var(--lime-dark)); color: #000; }
-.count-btn.liar.active { background: linear-gradient(180deg, var(--red), var(--orange)); color: #000; }
-.input { width: 100%; padding: 12px 14px; background: rgba(255,255,255,0.08); border: 1px solid var(--card-border); border-radius: 10px; color: #fff; font-size: 16px; font-family: inherit; outline: none; }
-.input:focus { border-color: var(--lime); }
-.input-row { margin-bottom: 8px; }
-.add-row { display: flex; gap: 8px; margin-bottom: 10px; }
-.add-row .input { flex: 1; }
-.category-row { display: flex; gap: 8px; flex-wrap: wrap; }
-.cat-btn { padding: 8px 14px; background: rgba(255,255,255,0.08); border: none; color: #fff; border-radius: 20px; font-size: 13px; font-weight: 600; cursor: pointer; font-family: inherit; transition: all 0.2s; }
-.cat-btn.active { background: linear-gradient(90deg, var(--lime), var(--lime-dark)); color: #000; }
-.card-progress { display: flex; gap: 4px; margin-bottom: 20px; }
-.card-pip { flex: 1; height: 4px; border-radius: 2px; background: rgba(255,255,255,0.15); }
-.card-pip.done { background: var(--lime); }
-.card-content { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; }
-.card-pass { text-align: center; }
-.card-pass .phone-emoji { font-size: 60px; margin-bottom: 16px; }
-.card-pass .player-name { font-size: 32px; font-weight: 900; background: linear-gradient(90deg, var(--lime), var(--lime-dark)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-.card-revealed { text-align: center; width: 100%; }
-.role-emoji { font-size: 50px; margin-bottom: 8px; }
-.role-text { font-size: 24px; font-weight: 900; margin-bottom: 16px; }
-.role-detective { color: var(--lime); }
-.role-liar { color: var(--red); }
-.card-info { background: var(--card-bg); border-radius: var(--radius); padding: 24px; margin: 0 auto; max-width: 300px; width: 100%; border: 1px solid var(--card-border); }
-.card-info.liar { border-color: rgba(255,68,68,0.2); background: rgba(255,68,68,0.08); }
-.card-info.detective { border-color: rgba(153,255,51,0.2); background: rgba(153,255,51,0.05); }
-.card-label { font-size: 12px; color: var(--text-dim); margin-bottom: 4px; }
-.card-value { font-size: 18px; font-weight: 700; }
-.card-emoji { font-size: 32px; margin-bottom: 4px; }
-.card-divider { height: 1px; background: rgba(255,255,255,0.1); margin: 12px 0; }
-.condition-badge { background: rgba(255,153,51,0.1); border: 1px solid rgba(255,153,51,0.2); border-radius: 12px; padding: 12px; margin-top: 12px; text-align: center; }
-.condition-badge span { color: var(--orange); font-weight: 700; font-size: 14px; }
-.round-header { text-align: center; margin-bottom: 16px; }
-.round-num { font-size: 14px; color: var(--text-dim); }
-.round-title { font-size: 24px; font-weight: 900; margin: 4px 0; }
-.round-subtitle { font-size: 14px; color: var(--text-dim); }
-.round-content { flex: 1; overflow-y: auto; }
-.player-card { display: flex; align-items: center; gap: 12px; padding: 12px 14px; background: var(--card-bg); border-radius: 12px; margin-bottom: 8px; border: 1px solid transparent; cursor: pointer; }
-.player-card.active { background: rgba(153,255,51,0.08); border-color: rgba(153,255,51,0.2); }
-.player-card .name { font-weight: 600; flex: 1; }
-.player-card .badge { font-size: 12px; color: var(--lime); background: rgba(153,255,51,0.15); padding: 4px 8px; border-radius: 8px; }
-.player-card .condition-text { font-size: 12px; color: var(--orange); margin-top: 2px; }
-.round-buttons { display: flex; gap: 10px; padding-top: 16px; }
-.round-buttons .btn { flex: 1; }
-.voting-content { flex: 1; display: flex; flex-direction: column; }
-.voting-title { font-size: 24px; font-weight: 900; text-align: center; margin-bottom: 4px; }
-.voting-subtitle { text-align: center; color: var(--text-dim); margin-bottom: 20px; }
-.vote-btn { display: flex; align-items: center; padding: 14px 16px; background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 12px; margin-bottom: 8px; cursor: pointer; transition: all 0.2s; }
-.vote-btn:active { background: rgba(255,68,68,0.15); border-color: rgba(255,68,68,0.3); }
-.vote-btn .name { flex: 1; font-size: 17px; font-weight: 600; color: #fff; }
-.vote-btn .check { font-size: 20px; color: var(--text-dim); }
-.vote-btn.selected { background: rgba(255,68,68,0.12); border-color: rgba(255,68,68,0.4); }
-.vote-btn.selected .check { color: var(--red); }
-.btn-vote-confirm { margin-top: auto; padding: 16px; background: linear-gradient(90deg, var(--red), var(--pink)); color: #fff; border: none; border-radius: 16px; font-size: 17px; font-weight: 800; cursor: pointer; font-family: inherit; width: 100%; }
-.result-content { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 16px; padding-top: 30px; overflow-y: auto; -webkit-overflow-scrolling: touch; }
-.result-emoji { font-size: 70px; animation: resultPop 0.6s ease; }
-@keyframes resultPop { 0% { transform: scale(0.2); } 60% { transform: scale(1.15); } 100% { transform: scale(1); } }
-.result-title { font-size: 28px; font-weight: 900; }
-.result-win { color: var(--lime); }
-.result-lose { color: var(--red); }
-.meme-card { background: linear-gradient(180deg, rgba(30,30,45,1), rgba(20,20,30,1)); border: 1px solid var(--card-border); border-radius: 20px; padding: 24px; text-align: center; width: 100%; box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
-.meme-emoji { font-size: 50px; margin-bottom: 12px; }
-.meme-text { font-size: 24px; font-weight: 900; margin-bottom: 8px; }
-.meme-subtext { font-size: 15px; color: var(--text-dim); }
-.result-card-reveal { background: var(--card-bg); border-radius: var(--radius); padding: 16px; width: 100%; text-align: center; }
-.result-votes { width: 100%; }
-.result-vote-row { display: flex; align-items: center; gap: 10px; padding: 10px 14px; background: var(--card-bg); border-radius: 10px; margin-bottom: 6px; }
-.result-vote-row .name { flex: 1; font-weight: 600; }
-.result-vote-row .role-badge { font-size: 11px; font-weight: 700; padding: 3px 8px; border-radius: 10px; }
-.role-badge-detective { color: var(--lime); background: rgba(153,255,51,0.12); }
-.role-badge-liar { color: var(--red); background: rgba(255,68,68,0.12); }
-.rules-content { display: flex; flex-direction: column; gap: 12px; overflow-y: auto; flex: 1; }
-.rule-card { background: var(--card-bg); border-radius: var(--radius); padding: 16px; }
-.rule-card h3 { font-size: 16px; margin-bottom: 6px; }
-.rule-card p { font-size: 14px; color: var(--text-dim); line-height: 1.5; }
-.custom-list { display: flex; flex-direction: column; gap: 6px; }
-.custom-item { display: flex; align-items: center; gap: 10px; padding: 10px 12px; background: rgba(255,255,255,0.04); border-radius: 10px; }
-.custom-item .name { flex: 1; font-weight: 600; }
-.custom-item .del { background: none; border: none; color: rgba(255,68,68,0.5); font-size: 18px; cursor: pointer; }
-    </style>
-    <script>
-    (function(){
-        function forceDark(){
-            try {
-                document.documentElement.style.setProperty('background-color','#0f0f1a','important');
-                if(document.body)document.body.style.setProperty('background-color','#0f0f1a','important');
-                var app=document.getElementById('app');
-                if(app)app.style.setProperty('background-color','#0f0f1a','important');
-            }catch(e){}
-        }
-        forceDark();
-        document.addEventListener('DOMContentLoaded',forceDark);
-        window.addEventListener('load',forceDark);
-        setInterval(forceDark,300);
-    })();
-    </script>
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+*{color-scheme:light!important}
+html, body {
+    min-height:100vh; min-height:100dvh;
+    overflow-x:hidden;
+    font-family: 'Space Grotesk', sans-serif;
+    -webkit-user-select:none;
+    user-select:none;
+    touch-action:manipulation;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+}
+/* Clean comic outline using layered shadows (no webkit-text-stroke doubling) */
+.comic-outline {
+    paint-order: stroke fill;
+    color: #fff;
+    text-shadow:
+        -2px -2px 0 #000,
+         2px -2px 0 #000,
+        -2px  2px 0 #000,
+         2px  2px 0 #000,
+        -2px  0   0 #000,
+         2px  0   0 #000,
+         0  -2px  0 #000,
+         0   2px  0 #000;
+}
+body {
+    background:#ffd600;
+    background-image:
+        radial-gradient(circle at 25% 25%, rgba(0,0,0,0.07) 2px, transparent 2px),
+        radial-gradient(circle at 75% 75%, rgba(0,0,0,0.07) 2px, transparent 2px);
+    background-size: 24px 24px;
+    position:relative;
+}
+body::before {
+    content:''; position:fixed; inset:0; z-index:0; pointer-events:none;
+    background-image:
+        repeating-conic-gradient(from 0deg at 50% 40%, transparent 0deg, transparent 8deg, rgba(0,0,0,0.03) 8deg, rgba(0,0,0,0.03) 10deg);
+}
+#app { min-height:100vh; min-height:100dvh; position:relative; z-index:1; }
+
+/* === SHARED === */
+.screen { display:none; min-height:100vh; min-height:100dvh; padding:24px 20px; padding-bottom:calc(24px + env(safe-area-inset-bottom,20px)); flex-direction:column; gap:20px; }
+.screen.active { display:flex; animation: popIn 0.3s cubic-bezier(0.2,1.5,0.5,1); }
+@keyframes popIn { from { transform:scale(0.95); opacity:0; } to { transform:scale(1); opacity:1; } }
+
+/* Top bubble */
+.top-bubble {
+    background:#0066ff; color:#fff;
+    border:4px solid #000; border-radius:20px;
+    padding:12px 16px; position:relative;
+    box-shadow: 6px 6px 0 #000;
+    font-family:'Bangers'; letter-spacing:2px;
+    transform: rotate(-1.5deg);
+}
+.top-bubble::after {
+    content:''; position:absolute; bottom:-14px; left:40px;
+    width:0; height:0; border:14px solid transparent;
+    border-top-color:#000; border-bottom:0;
+}
+.top-bubble::before {
+    content:''; position:absolute; bottom:-10px; left:42px;
+    width:0; height:0; border:12px solid transparent;
+    border-top-color:#0066ff; border-bottom:0;
+    z-index:1;
+}
+.top-bubble-title { font-size:18px; }
+.top-bubble-sub { font-size:13px; opacity:0.95; font-family:'Space Grotesk'; font-weight:500; letter-spacing:0; }
+
+/* Screen header */
+.screen-header { display:flex; align-items:center; gap:10px; margin-bottom:4px; }
+.btn-back {
+    background:#fff; border:3px solid #000; color:#000;
+    padding:10px 14px; font-family:'Bangers'; font-size:15px;
+    letter-spacing:1px; cursor:pointer; border-radius:12px;
+    box-shadow: 4px 4px 0 #000;
+}
+.btn-back:active { transform: translate(2px,2px); box-shadow: 2px 2px 0 #000; }
+.screen-title {
+    flex:1; text-align:center; font-family:'Luckiest Guy';
+    font-size:32px; letter-spacing:2px;
+    color:#fff;
+    text-shadow:
+        -2px -2px 0 #000, 2px -2px 0 #000, -2px 2px 0 #000, 2px 2px 0 #000,
+        -2px 0 0 #000, 2px 0 0 #000, 0 -2px 0 #000, 0 2px 0 #000,
+        4px 4px 0 #e63946, 6px 6px 0 #000;
+    padding-right:80px;
+    line-height:1;
+}
+
+/* === MENU === */
+#screen-menu { align-items:center; justify-content:flex-start; }
+.hero {
+    width:200px; height:200px; position:relative;
+    animation: bounce 2s ease-in-out infinite;
+    margin:10px 0;
+}
+@keyframes bounce { 0%,100% { transform:translateY(0) rotate(-2deg); } 50% { transform:translateY(-10px) rotate(2deg); } }
+.hero-burst {
+    position:absolute; inset:0;
+    background: #e63946;
+    clip-path: polygon(50% 0%, 61% 18%, 79% 8%, 75% 28%, 94% 32%, 82% 48%, 100% 55%, 84% 68%, 94% 84%, 73% 82%, 70% 100%, 54% 88%, 42% 100%, 30% 82%, 9% 84%, 18% 68%, 0% 55%, 18% 48%, 6% 32%, 25% 28%, 21% 8%, 39% 18%);
+    filter: drop-shadow(5px 5px 0 #000);
+}
+.hero-face {
+    position:absolute; inset:25%;
+    background:#ffd600; border:4px solid #000; border-radius:50%;
+    display:flex; align-items:center; justify-content:center;
+    font-size:56px;
+    box-shadow: inset -6px -6px 0 rgba(0,0,0,0.15);
+}
+
+.menu-title-block { text-align:center; position:relative; margin-top:8px; }
+.menu-title {
+    font-family:'Luckiest Guy';
+    font-size:76px; letter-spacing:2px; line-height:0.9;
+    color:#fff;
+    text-shadow:
+        -3px -3px 0 #000, 3px -3px 0 #000, -3px 3px 0 #000, 3px 3px 0 #000,
+        -3px 0 0 #000, 3px 0 0 #000, 0 -3px 0 #000, 0 3px 0 #000,
+        6px 6px 0 #e63946, 9px 9px 0 #000;
+    transform: rotate(-3deg);
+    paint-order: stroke fill;
+}
+.menu-subtitle {
+    background:#fff; border:3px solid #000;
+    padding:6px 16px; display:inline-block; margin-top:14px;
+    font-family:'Bangers'; font-size:18px; letter-spacing:2px;
+    transform: rotate(2deg);
+    box-shadow: 4px 4px 0 #000;
+}
+.pow {
+    position:absolute; font-family:'Luckiest Guy';
+    color:#fff;
+    text-shadow:
+        -2px -2px 0 #000, 2px -2px 0 #000, -2px 2px 0 #000, 2px 2px 0 #000,
+        -2px 0 0 #000, 2px 0 0 #000, 0 -2px 0 #000, 0 2px 0 #000,
+        4px 4px 0 #000;
+    pointer-events:none;
+    animation: pulse 1.5s ease infinite alternate;
+    z-index:0;
+}
+@keyframes pulse { from { transform:scale(1) rotate(var(--r,0deg)); } to { transform:scale(1.1) rotate(var(--r,0deg)); } }
+.pow-1 { top:90px; right:20px; font-size:36px; color:#ffd600; --r:15deg; animation-delay:0s; }
+.pow-2 { top:240px; left:10px; font-size:28px; color:#ff6b9d; --r:-12deg; animation-delay:0.3s; }
+.pow-3 { bottom:200px; right:30px; font-size:32px; color:#00e676; --r:8deg; animation-delay:0.6s; }
+
+.menu-buttons { width:100%; max-width:360px; display:flex; flex-direction:column; gap:14px; margin-top:16px; position:relative; z-index:1; }
+.btn-main {
+    background:#e63946; color:#fff;
+    border:4px solid #000; border-radius:16px;
+    padding:22px; font-family:'Luckiest Guy';
+    font-size:28px; letter-spacing:3px; cursor:pointer;
+    box-shadow: 8px 8px 0 #000;
+    text-shadow:
+        -2px -2px 0 #000, 2px -2px 0 #000, -2px 2px 0 #000, 2px 2px 0 #000;
+    transition: transform 0.1s, box-shadow 0.1s;
+}
+.btn-main:active { transform: translate(4px,4px); box-shadow: 4px 4px 0 #000; }
+.btn-row { display:flex; gap:10px; }
+.btn-chip {
+    flex:1; background:#fff; color:#000;
+    border:3px solid #000; border-radius:14px;
+    padding:14px 8px; font-family:'Bangers';
+    font-size:18px; letter-spacing:2px; cursor:pointer;
+    box-shadow: 5px 5px 0 #000;
+    transition: transform 0.1s, box-shadow 0.1s;
+}
+.btn-chip:active { transform: translate(2px,2px); box-shadow: 3px 3px 0 #000; }
+
+/* === SETUP === */
+.setup-content { display:flex; flex-direction:column; gap:16px; overflow-y:auto; flex:1; padding-bottom:16px; -webkit-overflow-scrolling:touch; }
+.setup-section {
+    background:#fff; border:3px solid #000; border-radius:16px;
+    padding:16px; box-shadow: 5px 5px 0 #000;
+}
+.setup-section label {
+    font-family:'Bangers'; font-size:20px; letter-spacing:2px;
+    display:block; margin-bottom:10px; color:#000;
+}
+.player-count-row { display:flex; gap:6px; }
+.count-btn {
+    flex:1; padding:12px 0; background:#ffd600; border:2px solid #000;
+    color:#000; border-radius:10px;
+    font-family:'Luckiest Guy'; font-size:20px; cursor:pointer;
+    box-shadow: 3px 3px 0 #000;
+    transition: all 0.1s;
+}
+.count-btn:active { transform: translate(1px,1px); box-shadow: 2px 2px 0 #000; }
+.count-btn.active {
+    background:#e63946; color:#fff;
+    text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000;
+}
+.count-btn.liar.active { background:#ff8a00; color:#000; }
+.input {
+    width:100%; padding:12px 14px;
+    background:#fff8e0; border:2px solid #000; border-radius:10px;
+    color:#000; font-size:16px; font-family:'Space Grotesk';
+    font-weight:600; outline:none;
+    box-shadow: 3px 3px 0 #000;
+}
+.input:focus { background:#fff; border-color:#0066ff; }
+.input-row { margin-bottom:8px; }
+
+.category-row { display:flex; gap:6px; flex-wrap:wrap; }
+.cat-btn {
+    padding:8px 14px; background:#fff; border:2px solid #000; color:#000;
+    border-radius:20px; font-family:'Bangers'; font-size:14px;
+    letter-spacing:1px; cursor:pointer; box-shadow: 3px 3px 0 #000;
+}
+.cat-btn.active { background:#00e676; color:#000; }
+
+/* === CARD REVEAL === */
+#screen-card { align-items:center; justify-content:flex-start; }
+.card-progress { display:flex; gap:6px; width:100%; max-width:360px; margin-bottom:10px; }
+.card-pip {
+    flex:1; height:10px; border-radius:4px;
+    background:#fff; border:2px solid #000;
+}
+.card-pip.done { background:#00e676; }
+
+.card-content { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:16px; width:100%; max-width:360px; }
+
+.card-pass { text-align:center; }
+.card-pass .phone-emoji {
+    font-size:80px; margin-bottom:10px;
+    animation: wobble 1s ease-in-out infinite;
+}
+@keyframes wobble { 0%,100% { transform:rotate(-5deg); } 50% { transform:rotate(5deg); } }
+.card-pass h2 {
+    font-family:'Luckiest Guy'; font-size:38px;
+    color:#fff;
+    text-shadow:
+        -2px -2px 0 #000, 2px -2px 0 #000, -2px 2px 0 #000, 2px 2px 0 #000,
+        -2px 0 0 #000, 2px 0 0 #000, 0 -2px 0 #000, 0 2px 0 #000,
+        4px 4px 0 #0066ff, 6px 6px 0 #000;
+    letter-spacing:2px; transform:rotate(-2deg);
+    margin:8px 0;
+}
+.card-pass .player-name {
+    font-family:'Luckiest Guy'; font-size:32px;
+    color:#e63946;
+    text-shadow:
+        -2px -2px 0 #000, 2px -2px 0 #000, -2px 2px 0 #000, 2px 2px 0 #000;
+    margin:8px 0;
+    word-break:break-word;
+}
+
+/* Role reveal comic panel */
+.card-revealed { text-align:center; width:100%; }
+.card-info {
+    background:#fff; border:5px solid #000;
+    border-radius:10px; padding:24px 20px;
+    box-shadow: 10px 10px 0 #000;
+    max-width:320px; margin:0 auto;
+    position:relative;
+    animation: slamIn 0.5s cubic-bezier(0.2,1.5,0.5,1);
+}
+@keyframes slamIn { from { transform:scale(0.3) rotate(-20deg); opacity:0; } to { transform:scale(1) rotate(0); opacity:1; } }
+.card-info.liar { background:#e63946; }
+.card-info.detective { background:#00e676; }
+.card-info::after {
+    content:''; position:absolute; inset:0;
+    background-image:radial-gradient(circle, rgba(0,0,0,0.08) 1px, transparent 1px);
+    background-size: 8px 8px;
+    pointer-events:none;
+    border-radius:5px;
+}
+.role-emoji { font-size:70px; line-height:1; }
+.role-text {
+    font-family:'Luckiest Guy'; font-size:36px;
+    color:#fff;
+    text-shadow:
+        -2px -2px 0 #000, 2px -2px 0 #000, -2px 2px 0 #000, 2px 2px 0 #000,
+        -2px 0 0 #000, 2px 0 0 #000, 0 -2px 0 #000, 0 2px 0 #000,
+        4px 4px 0 #000;
+    letter-spacing:2px; line-height:1;
+    margin: 8px 0 14px;
+}
+.role-text.role-detective { color:#000; text-shadow: 3px 3px 0 rgba(0,0,0,0.15); }
+.card-label {
+    font-family:'Bangers'; font-size:16px;
+    background:#000; color:#ffd600;
+    display:inline-block; padding:3px 10px;
+    border-radius:6px; letter-spacing:2px;
+    margin:10px 0 4px;
+}
+.card-emoji { font-size:44px; line-height:1; }
+.card-value {
+    font-family:'Luckiest Guy'; font-size:22px;
+    color:#000; letter-spacing:1px;
+    margin-top:2px;
+}
+.card-divider {
+    width:60%; height:3px; background:#000;
+    margin:12px auto; border-radius:2px;
+}
+.condition-badge {
+    background:#ff8a00; border:3px solid #000;
+    padding:10px 14px; border-radius:12px;
+    margin-top:14px; box-shadow: 4px 4px 0 #000;
+    text-align:center;
+}
+.condition-badge span {
+    font-family:'Bangers'; font-size:16px; color:#000;
+    letter-spacing:1px;
+}
+
+/* === ROUND === */
+.round-header { text-align:center; position:relative; }
+.round-num {
+    display:inline-block; background:#000; color:#ffd600;
+    font-family:'Luckiest Guy'; font-size:18px;
+    padding:4px 12px; border-radius:8px;
+    letter-spacing:2px; margin-bottom:8px;
+}
+.round-title {
+    font-family:'Luckiest Guy'; font-size:32px;
+    color:#fff;
+    text-shadow:
+        -2px -2px 0 #000, 2px -2px 0 #000, -2px 2px 0 #000, 2px 2px 0 #000,
+        -2px 0 0 #000, 2px 0 0 #000, 0 -2px 0 #000, 0 2px 0 #000,
+        4px 4px 0 #e63946, 6px 6px 0 #000;
+    letter-spacing:2px; line-height:1;
+}
+.round-subtitle {
+    font-family:'Bangers'; font-size:16px;
+    color:#000; margin-top:6px; letter-spacing:1px;
+}
+
+.round-content { flex:1; overflow-y:auto; -webkit-overflow-scrolling:touch; }
+
+.player-card {
+    display:flex; align-items:center; gap:10px;
+    padding:12px 14px; background:#fff;
+    border:3px solid #000; border-radius:14px;
+    margin-bottom:8px; cursor:pointer;
+    box-shadow: 4px 4px 0 #000;
+    transition: all 0.1s;
+}
+.player-card:active { transform: translate(2px,2px); box-shadow: 2px 2px 0 #000; }
+.player-card.active { background:#00e676; }
+.player-card .name { font-family:'Space Grotesk'; font-weight:700; font-size:17px; flex:1; }
+.player-card .badge {
+    font-family:'Bangers'; font-size:14px;
+    background:#000; color:#ffd600;
+    padding:4px 10px; border-radius:8px;
+    letter-spacing:2px;
+}
+.player-card .condition-text {
+    font-family:'Bangers'; font-size:13px;
+    color:#ff8a00; margin-top:2px; letter-spacing:1px;
+}
+
+.round-buttons { display:flex; gap:10px; padding-top:10px; }
+.round-buttons .btn { flex:1; }
+.btn-danger {
+    background:#e63946; color:#fff;
+    border:3px solid #000; border-radius:14px;
+    padding:14px; font-family:'Luckiest Guy'; font-size:18px;
+    letter-spacing:2px;
+    text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000;
+    box-shadow: 5px 5px 0 #000; cursor:pointer;
+}
+.btn-danger:active { transform: translate(2px,2px); box-shadow: 3px 3px 0 #000; }
+.btn-primary-round {
+    background:#00e676; color:#000;
+    border:3px solid #000; border-radius:14px;
+    padding:14px; font-family:'Luckiest Guy'; font-size:18px;
+    letter-spacing:2px;
+    box-shadow: 5px 5px 0 #000; cursor:pointer;
+}
+.btn-primary-round:active { transform: translate(2px,2px); box-shadow: 3px 3px 0 #000; }
+
+/* === VOTING === */
+.voting-content { flex:1; display:flex; flex-direction:column; }
+.voting-title {
+    font-family:'Luckiest Guy'; font-size:28px;
+    color:#fff;
+    text-shadow:
+        -2px -2px 0 #000, 2px -2px 0 #000, -2px 2px 0 #000, 2px 2px 0 #000,
+        -2px 0 0 #000, 2px 0 0 #000, 0 -2px 0 #000, 0 2px 0 #000,
+        4px 4px 0 #0066ff, 6px 6px 0 #000;
+    letter-spacing:2px; text-align:center;
+    margin-bottom:6px; line-height:1.1;
+}
+.voting-subtitle {
+    text-align:center; font-family:'Bangers';
+    font-size:18px; letter-spacing:2px;
+    color:#e63946; margin-bottom:20px;
+}
+.vote-btn {
+    display:flex; align-items:center;
+    padding:14px 16px; background:#fff;
+    border:3px solid #000; border-radius:12px;
+    margin-bottom:10px; cursor:pointer;
+    box-shadow: 4px 4px 0 #000;
+    transition: all 0.1s;
+}
+.vote-btn:active { transform: translate(2px,2px); box-shadow: 2px 2px 0 #000; }
+.vote-btn .name { flex:1; font-family:'Space Grotesk'; font-weight:700; font-size:17px; color:#000; }
+.vote-btn .check { font-size:22px; }
+.vote-btn.selected { background:#e63946; color:#fff; }
+.vote-btn.selected .name { color:#fff; }
+
+.btn-vote-confirm {
+    margin-top:auto; padding:18px;
+    background:#e63946; color:#fff;
+    border:4px solid #000; border-radius:16px;
+    font-family:'Luckiest Guy'; font-size:20px;
+    letter-spacing:2px;
+    text-shadow: -2px -2px 0 #000, 2px -2px 0 #000, -2px 2px 0 #000, 2px 2px 0 #000;
+    box-shadow: 7px 7px 0 #000; cursor:pointer;
+    width:100%;
+}
+.btn-vote-confirm:active { transform: translate(3px,3px); box-shadow: 4px 4px 0 #000; }
+
+/* === RESULT === */
+.result-content { flex:1; display:flex; flex-direction:column; align-items:center; gap:16px; padding-top:10px; overflow-y:auto; -webkit-overflow-scrolling:touch; }
+.result-emoji {
+    font-size:80px; line-height:1;
+    animation: resultPop 0.6s cubic-bezier(0.2,2,0.5,1);
+}
+@keyframes resultPop { 0% { transform: scale(0.2) rotate(-30deg); } 60% { transform: scale(1.2) rotate(10deg); } 100% { transform: scale(1) rotate(0); } }
+.result-title {
+    font-family:'Luckiest Guy'; font-size:36px;
+    color:#fff;
+    letter-spacing:2px; text-align:center;
+    line-height:1;
+}
+.result-title.result-win {
+    text-shadow:
+        -2px -2px 0 #000, 2px -2px 0 #000, -2px 2px 0 #000, 2px 2px 0 #000,
+        -2px 0 0 #000, 2px 0 0 #000, 0 -2px 0 #000, 0 2px 0 #000,
+        5px 5px 0 #00e676, 7px 7px 0 #000;
+}
+.result-title.result-lose {
+    text-shadow:
+        -2px -2px 0 #000, 2px -2px 0 #000, -2px 2px 0 #000, 2px 2px 0 #000,
+        -2px 0 0 #000, 2px 0 0 #000, 0 -2px 0 #000, 0 2px 0 #000,
+        5px 5px 0 #e63946, 7px 7px 0 #000;
+}
+
+.meme-card {
+    background:#fff; border:5px solid #000;
+    border-radius:16px; padding:20px;
+    text-align:center; width:100%; max-width:340px;
+    box-shadow: 10px 10px 0 #000;
+    position:relative;
+    transform: rotate(-1deg);
+}
+.meme-card::before {
+    content:'BOOM!'; position:absolute; top:-18px; right:-14px;
+    font-family:'Luckiest Guy'; font-size:28px;
+    color:#ffd600;
+    text-shadow:
+        -2px -2px 0 #000, 2px -2px 0 #000, -2px 2px 0 #000, 2px 2px 0 #000,
+        -2px 0 0 #000, 2px 0 0 #000, 0 -2px 0 #000, 0 2px 0 #000,
+        4px 4px 0 #000;
+    transform: rotate(15deg);
+}
+.meme-emoji { font-size:50px; line-height:1; margin-bottom:8px; }
+.meme-text {
+    font-family:'Luckiest Guy'; font-size:24px;
+    letter-spacing:1px; line-height:1.1;
+    color:#000;
+}
+.meme-subtext {
+    font-family:'Bangers'; font-size:16px;
+    color:#e63946; margin-top:6px; letter-spacing:1px;
+}
+
+.result-card-reveal {
+    background:#0066ff; color:#fff;
+    border:4px solid #000; border-radius:14px;
+    padding:16px; width:100%; max-width:340px;
+    text-align:center; box-shadow: 6px 6px 0 #000;
+    font-family:'Bangers'; letter-spacing:1px;
+}
+.result-card-reveal span {
+    font-family:'Luckiest Guy';
+    text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000;
+}
+
+.result-votes { width:100%; max-width:340px; }
+.result-vote-row {
+    display:flex; align-items:center; gap:10px;
+    padding:10px 14px; background:#fff;
+    border:3px solid #000; border-radius:12px;
+    margin-bottom:6px; box-shadow: 3px 3px 0 #000;
+}
+.result-vote-row .name { flex:1; font-family:'Space Grotesk'; font-weight:700; }
+.role-badge {
+    font-family:'Bangers'; font-size:12px;
+    padding:3px 8px; border-radius:8px;
+    letter-spacing:1px; border:2px solid #000;
+}
+.role-badge-detective { background:#00e676; color:#000; }
+.role-badge-liar { background:#e63946; color:#fff; }
+
+/* === RULES === */
+.rules-content { display:flex; flex-direction:column; gap:12px; overflow-y:auto; flex:1; -webkit-overflow-scrolling:touch; }
+.rule-card {
+    background:#fff; border:3px solid #000;
+    border-radius:14px; padding:16px;
+    box-shadow: 5px 5px 0 #000;
+    position:relative;
+}
+.rule-card h3 {
+    font-family:'Luckiest Guy'; font-size:22px;
+    letter-spacing:1px; margin-bottom:6px;
+    color:#e63946;
+    text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000;
+}
+.rule-card p {
+    font-family:'Space Grotesk'; font-weight:500;
+    font-size:14px; line-height:1.4; color:#000;
+}
+
+/* === LEGACY ALIASES for game.js injected classes === */
+.btn.btn-primary, .btn-primary:not(.btn-main):not(.btn-primary-round) {
+    background:#e63946; color:#fff;
+    border:4px solid #000; border-radius:16px;
+    padding:20px; font-family:'Luckiest Guy';
+    font-size:24px; letter-spacing:3px; cursor:pointer;
+    box-shadow: 8px 8px 0 #000;
+    text-shadow: -2px -2px 0 #000, 2px -2px 0 #000, -2px 2px 0 #000, 2px 2px 0 #000;
+}
+.btn.btn-primary:active { transform: translate(4px,4px); box-shadow: 4px 4px 0 #000; }
+.btn.btn-large {
+    width:100%; font-size:30px; padding:22px;
+}
+.btn.btn-danger:not(.btn-danger) {
+    background:#e63946; color:#fff; border:3px solid #000;
+    border-radius:14px; padding:14px; font-family:'Luckiest Guy';
+    -webkit-text-stroke:1px #000; cursor:pointer;
+    box-shadow: 5px 5px 0 #000;
+}
+
+/* === CUSTOM === */
+.custom-content, .setup-content { padding-bottom:20px; }
+.add-row { display:flex; gap:8px; margin-bottom:10px; }
+.add-row .input { flex:1; }
+.btn-add {
+    background:#00e676; color:#000;
+    border:3px solid #000; width:50px; height:50px;
+    border-radius:12px; font-family:'Luckiest Guy';
+    font-size:28px; cursor:pointer;
+    box-shadow: 4px 4px 0 #000;
+    flex-shrink:0;
+}
+.btn-add:active { transform: translate(2px,2px); box-shadow: 2px 2px 0 #000; }
+.custom-list { display:flex; flex-direction:column; gap:6px; }
+.custom-item {
+    display:flex; align-items:center; gap:10px;
+    padding:10px 12px; background:#fff8e0;
+    border:2px solid #000; border-radius:10px;
+    box-shadow: 3px 3px 0 #000;
+}
+.custom-item .name { flex:1; font-family:'Space Grotesk'; font-weight:700; }
+.custom-item .del {
+    background:#e63946; color:#fff;
+    border:2px solid #000; width:28px; height:28px;
+    border-radius:6px; font-family:'Luckiest Guy';
+    font-size:14px; cursor:pointer;
+}
+</style>
 </head>
-<body style="background:#0f0f1a!important;color:#fff!important">
-    <!-- Screens -->
-    <div id="app" style="background:#0f0f1a!important">
-        <!-- Menu -->
-        <div id="screen-menu" class="screen active">
-            <div class="floating-emojis">
-                <span class="float-emoji" style="left:10%;top:12%;animation-delay:0s">🤥</span>
-                <span class="float-emoji" style="left:85%;top:10%;animation-delay:0.5s">🕵️</span>
-                <span class="float-emoji" style="left:8%;top:45%;animation-delay:1s">🎭</span>
-                <span class="float-emoji" style="left:90%;top:40%;animation-delay:1.5s">🔍</span>
-                <span class="float-emoji" style="left:15%;top:70%;animation-delay:0.8s">🃏</span>
-                <span class="float-emoji" style="left:85%;top:65%;animation-delay:1.2s">👻</span>
-            </div>
-            <div class="menu-content">
-                <div class="logo">
-                    <div class="blob-logo" id="blob-logo">
-                        <div class="blob-face">
-                            <div class="blob-eyes">
-                                <div class="blob-eye"></div>
-                                <div class="blob-eye"></div>
-                            </div>
-                            <div class="blob-smirk"></div>
-                        </div>
-                    </div>
-                    <h1 class="game-title">ВРУШКА</h1>
-                    <p class="game-subtitle">кто здесь врёт? 👀</p>
-                </div>
-                <div class="menu-buttons">
-                    <button class="btn btn-primary btn-large" onclick="showScreen('setup')">▶ ИГРАТЬ</button>
-                    <div class="btn-row">
-                        <button class="btn btn-chip" onclick="showScreen('rules')">📖 Правила</button>
-                        <button class="btn btn-chip" onclick="showScreen('custom')">✏️ Свои</button>
-                    </div>
-                </div>
-            </div>
+<body style="background:#ffd600!important;color:#000!important">
+<div id="app" style="background:#ffd600!important">
+
+    <!-- MENU -->
+    <div id="screen-menu" class="screen active">
+        <span class="pow pow-1">ZAP!</span>
+        <span class="pow pow-2">BAM!</span>
+        <span class="pow pow-3">WHAM!</span>
+
+        <div class="top-bubble">
+            <div class="top-bubble-title">⚡ ГЛАВА 1 ⚡</div>
+            <div class="top-bubble-sub">сегодня вечером... кто-то соврёт!</div>
         </div>
 
-        <!-- Setup -->
-        <div id="screen-setup" class="screen">
-            <div class="screen-header">
-                <button class="btn-back" onclick="showScreen('menu')">← Назад</button>
-                <h2>Настройка</h2>
-            </div>
-            <div class="setup-content">
-                <div class="setup-section">
-                    <label>👥 Игроки</label>
-                    <div class="player-count-row">
-                        <button class="count-btn active" onclick="setPlayerCount(3)">3</button>
-                        <button class="count-btn" onclick="setPlayerCount(4)">4</button>
-                        <button class="count-btn" onclick="setPlayerCount(5)">5</button>
-                        <button class="count-btn" onclick="setPlayerCount(6)">6</button>
-                        <button class="count-btn" onclick="setPlayerCount(7)">7</button>
-                        <button class="count-btn" onclick="setPlayerCount(8)">8</button>
-                    </div>
-                </div>
-                <div class="setup-section">
-                    <label>✏️ Имена</label>
-                    <div id="player-names"></div>
-                </div>
-                <div class="setup-section">
-                    <label>🤥 Врушки</label>
-                    <div class="player-count-row">
-                        <button class="count-btn liar active" onclick="setLiarCount(1)">1</button>
-                        <button class="count-btn liar" onclick="setLiarCount(2)">2</button>
-                        <button class="count-btn liar" onclick="setLiarCount(3)">3</button>
-                    </div>
-                </div>
-                <div class="setup-section">
-                    <label>🎭 Категория</label>
-                    <div class="category-row" id="category-row"></div>
-                </div>
-                <button class="btn btn-primary btn-large" onclick="startGame()">🚀 НАЧАТЬ ИГРУ</button>
-            </div>
+        <div class="hero">
+            <div class="hero-burst"></div>
+            <div class="hero-face">🤥</div>
         </div>
 
-        <!-- Card Reveal -->
-        <div id="screen-card" class="screen">
-            <div class="card-progress" id="card-progress"></div>
-            <div class="card-content" id="card-content"></div>
+        <div class="menu-title-block">
+            <div class="menu-title">ВРУШКА</div>
+            <div class="menu-subtitle">✦ поймай обманщика ✦</div>
         </div>
 
-        <!-- Round -->
-        <div id="screen-round" class="screen">
-            <div class="round-header" id="round-header"></div>
-            <div class="round-content" id="round-content"></div>
-            <div class="round-buttons">
-                <button class="btn btn-danger" onclick="goToVoting()">🗳️ Голосовать</button>
-                <button class="btn btn-primary" onclick="nextRound()">Далее →</button>
-            </div>
-        </div>
-
-        <!-- Voting -->
-        <div id="screen-voting" class="screen">
-            <div class="voting-content" id="voting-content"></div>
-        </div>
-
-        <!-- Result -->
-        <div id="screen-result" class="screen">
-            <div class="result-content" id="result-content"></div>
-        </div>
-
-        <!-- Rules -->
-        <div id="screen-rules" class="screen">
-            <div class="screen-header">
-                <button class="btn-back" onclick="showScreen('menu')">← Назад</button>
-                <h2>Правила</h2>
-            </div>
-            <div class="rules-content">
-                <div class="rule-card">
-                    <h3>🎯 Цель</h3>
-                    <p>Сыщики ищут Врушку — игрока, который НЕ знает загаданного персонажа. Врушка блефует!</p>
-                </div>
-                <div class="rule-card">
-                    <h3>🗣️ Раунд 1: Описание</h3>
-                    <p>Опишите персонажа словами. Некоторым попадутся смешные условия!</p>
-                </div>
-                <div class="rule-card">
-                    <h3>🤫 Раунд 2: Жесты</h3>
-                    <p>Покажите МЕСТО без слов — только жесты и мимика!</p>
-                </div>
-                <div class="rule-card">
-                    <h3>☝️ Раунд 3: Одно слово</h3>
-                    <p>Скажите одно слово о персонаже.</p>
-                </div>
-                <div class="rule-card">
-                    <h3>❓ Раунд 4: Вопросы</h3>
-                    <p>Задавайте друг другу вопросы как персонажу в этом месте.</p>
-                </div>
-                <div class="rule-card">
-                    <h3>🗳️ Голосование</h3>
-                    <p>Кто набрал больше голосов — подозреваемый. Если это Врушка — сыщики победили!</p>
-                </div>
-            </div>
-        </div>
-
-        <!-- Custom Content -->
-        <div id="screen-custom" class="screen">
-            <div class="screen-header">
-                <button class="btn-back" onclick="showScreen('menu')">← Назад</button>
-                <h2>Свой контент</h2>
-            </div>
-            <div class="custom-content">
-                <div class="setup-section">
-                    <label>🎭 Свои персонажи</label>
-                    <div class="add-row">
-                        <input type="text" id="custom-char-name" placeholder="Имя персонажа" class="input">
-                        <button class="btn btn-add" onclick="addCustomCharacter()">+</button>
-                    </div>
-                    <div id="custom-chars-list" class="custom-list"></div>
-                </div>
-                <div class="setup-section">
-                    <label>📍 Свои места</label>
-                    <div class="add-row">
-                        <input type="text" id="custom-place-name" placeholder="Название места" class="input">
-                        <button class="btn btn-add" onclick="addCustomPlace()">+</button>
-                    </div>
-                    <div id="custom-places-list" class="custom-list"></div>
-                </div>
+        <div class="menu-buttons">
+            <button class="btn-main" onclick="showScreen('setup')">▶ ИГРАТЬ!</button>
+            <div class="btn-row">
+                <button class="btn-chip" onclick="showScreen('rules')">📖 ПРАВИЛА</button>
+                <button class="btn-chip" onclick="showScreen('custom')">✏️ СВОИ</button>
             </div>
         </div>
     </div>
 
-    <script src="js/data.js?v=5"></script>
-    <script src="js/game.js?v=5"></script>
+    <!-- SETUP -->
+    <div id="screen-setup" class="screen">
+        <div class="screen-header">
+            <button class="btn-back" onclick="showScreen('menu')">← НАЗАД</button>
+            <h2 class="screen-title">НАСТРОЙКА</h2>
+        </div>
+        <div class="setup-content">
+            <div class="setup-section">
+                <label>👥 ИГРОКИ</label>
+                <div class="player-count-row">
+                    <button class="count-btn active" onclick="setPlayerCount(3)">3</button>
+                    <button class="count-btn" onclick="setPlayerCount(4)">4</button>
+                    <button class="count-btn" onclick="setPlayerCount(5)">5</button>
+                    <button class="count-btn" onclick="setPlayerCount(6)">6</button>
+                    <button class="count-btn" onclick="setPlayerCount(7)">7</button>
+                    <button class="count-btn" onclick="setPlayerCount(8)">8</button>
+                </div>
+            </div>
+            <div class="setup-section">
+                <label>✏️ ИМЕНА</label>
+                <div id="player-names"></div>
+            </div>
+            <div class="setup-section">
+                <label>🤥 ВРУШКИ</label>
+                <div class="player-count-row">
+                    <button class="count-btn liar active" onclick="setLiarCount(1)">1</button>
+                    <button class="count-btn liar" onclick="setLiarCount(2)">2</button>
+                    <button class="count-btn liar" onclick="setLiarCount(3)">3</button>
+                </div>
+            </div>
+            <div class="setup-section">
+                <label>🎭 КАТЕГОРИЯ</label>
+                <div class="category-row" id="category-row"></div>
+            </div>
+            <button class="btn-main" onclick="startGame()">🚀 НАЧАТЬ ИГРУ!</button>
+        </div>
+    </div>
+
+    <!-- CARD REVEAL -->
+    <div id="screen-card" class="screen">
+        <div class="card-progress" id="card-progress"></div>
+        <div class="card-content" id="card-content"></div>
+    </div>
+
+    <!-- ROUND -->
+    <div id="screen-round" class="screen">
+        <div class="round-header" id="round-header"></div>
+        <div class="round-content" id="round-content"></div>
+        <div class="round-buttons">
+            <button class="btn-danger" onclick="goToVoting()">🗳️ ГОЛОСОВАТЬ</button>
+            <button class="btn-primary-round" onclick="nextRound()">ДАЛЕЕ →</button>
+        </div>
+    </div>
+
+    <!-- VOTING -->
+    <div id="screen-voting" class="screen">
+        <div class="voting-content" id="voting-content"></div>
+    </div>
+
+    <!-- RESULT -->
+    <div id="screen-result" class="screen">
+        <div class="result-content" id="result-content"></div>
+    </div>
+
+    <!-- RULES -->
+    <div id="screen-rules" class="screen">
+        <div class="screen-header">
+            <button class="btn-back" onclick="showScreen('menu')">← НАЗАД</button>
+            <h2 class="screen-title">ПРАВИЛА</h2>
+        </div>
+        <div class="rules-content">
+            <div class="rule-card"><h3>🎯 ЦЕЛЬ</h3><p>Сыщики ищут Врушку — игрока, который НЕ знает загаданного персонажа. Врушка блефует!</p></div>
+            <div class="rule-card"><h3>🗣️ РАУНД 1: ОПИСАНИЕ</h3><p>Опишите персонажа словами. Некоторым попадутся смешные условия!</p></div>
+            <div class="rule-card"><h3>🤫 РАУНД 2: ЖЕСТЫ</h3><p>Покажите МЕСТО без слов — только жесты и мимика!</p></div>
+            <div class="rule-card"><h3>☝️ РАУНД 3: ОДНО СЛОВО</h3><p>Скажите одно слово о персонаже.</p></div>
+            <div class="rule-card"><h3>❓ РАУНД 4: ВОПРОСЫ</h3><p>Задавайте друг другу вопросы как персонажу в этом месте.</p></div>
+            <div class="rule-card"><h3>🗳️ ГОЛОСОВАНИЕ</h3><p>Кто набрал больше голосов — подозреваемый. Если это Врушка — сыщики победили!</p></div>
+        </div>
+    </div>
+
+    <!-- CUSTOM -->
+    <div id="screen-custom" class="screen">
+        <div class="screen-header">
+            <button class="btn-back" onclick="showScreen('menu')">← НАЗАД</button>
+            <h2 class="screen-title">СВОЙ КОНТЕНТ</h2>
+        </div>
+        <div class="custom-content">
+            <div class="setup-section">
+                <label>🎭 СВОИ ПЕРСОНАЖИ</label>
+                <div class="add-row">
+                    <input type="text" id="custom-char-name" placeholder="Имя персонажа" class="input">
+                    <button class="btn-add" onclick="addCustomCharacter()">+</button>
+                </div>
+                <div id="custom-chars-list" class="custom-list"></div>
+            </div>
+            <div class="setup-section">
+                <label>📍 СВОИ МЕСТА</label>
+                <div class="add-row">
+                    <input type="text" id="custom-place-name" placeholder="Название места" class="input">
+                    <button class="btn-add" onclick="addCustomPlace()">+</button>
+                </div>
+                <div id="custom-places-list" class="custom-list"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="js/data.js?v=comic1"></script>
+<script src="js/game.js?v=comic1"></script>
 </body>
 </html>
