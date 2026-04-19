@@ -1,0 +1,44 @@
+# === Secrets & server-side code ===
+# Bot files live on VPS only — never commit tokens or server logic to public repo
+bot.py
+bot_simple.py
+bot_*.py
+.env
+.env.*
+secrets/
+tokens.txt
+
+# === Runtime data ===
+vip_users.txt
+payments.log
+*.log
+*.pid
+
+# === Python ===
+__pycache__/
+*.py[cod]
+*.pyc
+*.pyo
+.venv/
+venv/
+.pytest_cache/
+
+# === Node / build artifacts ===
+node_modules/
+dist/
+build/
+.cache/
+
+# === OS ===
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+
+# === Editor ===
+.vscode/
+.idea/
+*.sublime-workspace
+
+# === Playwright ===
+/tmp/playwright-*

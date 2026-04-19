@@ -36,6 +36,23 @@ html, body {
     -webkit-user-select:none;
     user-select:none;
     touch-action:manipulation;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+}
+/* Clean comic outline using layered shadows (no webkit-text-stroke doubling) */
+.comic-outline {
+    paint-order: stroke fill;
+    color: #fff;
+    text-shadow:
+        -2px -2px 0 #000,
+         2px -2px 0 #000,
+        -2px  2px 0 #000,
+         2px  2px 0 #000,
+        -2px  0   0 #000,
+         2px  0   0 #000,
+         0  -2px  0 #000,
+         0   2px  0 #000;
 }
 body {
     background:#ffd600;
@@ -91,9 +108,12 @@ body::before {
 .btn-back:active { transform: translate(2px,2px); box-shadow: 2px 2px 0 #000; }
 .screen-title {
     flex:1; text-align:center; font-family:'Luckiest Guy';
-    font-size:36px; letter-spacing:2px;
-    color:#fff; -webkit-text-stroke: 3px #000;
-    text-shadow: 4px 4px 0 #e63946;
+    font-size:32px; letter-spacing:2px;
+    color:#fff;
+    text-shadow:
+        -2px -2px 0 #000, 2px -2px 0 #000, -2px 2px 0 #000, 2px 2px 0 #000,
+        -2px 0 0 #000, 2px 0 0 #000, 0 -2px 0 #000, 0 2px 0 #000,
+        4px 4px 0 #e63946, 6px 6px 0 #000;
     padding-right:80px;
     line-height:1;
 }
@@ -123,10 +143,14 @@ body::before {
 .menu-title-block { text-align:center; position:relative; margin-top:8px; }
 .menu-title {
     font-family:'Luckiest Guy';
-    font-size:88px; letter-spacing:2px; line-height:0.9;
-    color:#fff; -webkit-text-stroke: 4px #000;
-    text-shadow: 6px 6px 0 #e63946;
+    font-size:76px; letter-spacing:2px; line-height:0.9;
+    color:#fff;
+    text-shadow:
+        -3px -3px 0 #000, 3px -3px 0 #000, -3px 3px 0 #000, 3px 3px 0 #000,
+        -3px 0 0 #000, 3px 0 0 #000, 0 -3px 0 #000, 0 3px 0 #000,
+        6px 6px 0 #e63946, 9px 9px 0 #000;
     transform: rotate(-3deg);
+    paint-order: stroke fill;
 }
 .menu-subtitle {
     background:#fff; border:3px solid #000;
@@ -137,8 +161,11 @@ body::before {
 }
 .pow {
     position:absolute; font-family:'Luckiest Guy';
-    color:#fff; -webkit-text-stroke:3px #000;
-    text-shadow: 4px 4px 0 #000;
+    color:#fff;
+    text-shadow:
+        -2px -2px 0 #000, 2px -2px 0 #000, -2px 2px 0 #000, 2px 2px 0 #000,
+        -2px 0 0 #000, 2px 0 0 #000, 0 -2px 0 #000, 0 2px 0 #000,
+        4px 4px 0 #000;
     pointer-events:none;
     animation: pulse 1.5s ease infinite alternate;
     z-index:0;
@@ -153,11 +180,11 @@ body::before {
     background:#e63946; color:#fff;
     border:4px solid #000; border-radius:16px;
     padding:22px; font-family:'Luckiest Guy';
-    font-size:32px; letter-spacing:3px; cursor:pointer;
+    font-size:28px; letter-spacing:3px; cursor:pointer;
     box-shadow: 8px 8px 0 #000;
-    -webkit-text-stroke: 2px #000;
+    text-shadow:
+        -2px -2px 0 #000, 2px -2px 0 #000, -2px 2px 0 #000, 2px 2px 0 #000;
     transition: transform 0.1s, box-shadow 0.1s;
-    font-family-rendering: auto;
 }
 .btn-main:active { transform: translate(4px,4px); box-shadow: 4px 4px 0 #000; }
 .btn-row { display:flex; gap:10px; }
@@ -190,7 +217,10 @@ body::before {
     transition: all 0.1s;
 }
 .count-btn:active { transform: translate(1px,1px); box-shadow: 2px 2px 0 #000; }
-.count-btn.active { background:#e63946; color:#fff; -webkit-text-stroke:1px #000; }
+.count-btn.active {
+    background:#e63946; color:#fff;
+    text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000;
+}
 .count-btn.liar.active { background:#ff8a00; color:#000; }
 .input {
     width:100%; padding:12px 14px;
@@ -228,16 +258,20 @@ body::before {
 }
 @keyframes wobble { 0%,100% { transform:rotate(-5deg); } 50% { transform:rotate(5deg); } }
 .card-pass h2 {
-    font-family:'Luckiest Guy'; font-size:42px;
-    color:#fff; -webkit-text-stroke:3px #000;
-    text-shadow: 4px 4px 0 #0066ff;
+    font-family:'Luckiest Guy'; font-size:38px;
+    color:#fff;
+    text-shadow:
+        -2px -2px 0 #000, 2px -2px 0 #000, -2px 2px 0 #000, 2px 2px 0 #000,
+        -2px 0 0 #000, 2px 0 0 #000, 0 -2px 0 #000, 0 2px 0 #000,
+        4px 4px 0 #0066ff, 6px 6px 0 #000;
     letter-spacing:2px; transform:rotate(-2deg);
     margin:8px 0;
 }
 .card-pass .player-name {
-    font-family:'Luckiest Guy'; font-size:36px;
-    color:#e63946; -webkit-text-stroke:2px #000;
-    text-shadow: 3px 3px 0 #ffd600;
+    font-family:'Luckiest Guy'; font-size:32px;
+    color:#e63946;
+    text-shadow:
+        -2px -2px 0 #000, 2px -2px 0 #000, -2px 2px 0 #000, 2px 2px 0 #000;
     margin:8px 0;
     word-break:break-word;
 }
@@ -264,13 +298,16 @@ body::before {
 }
 .role-emoji { font-size:70px; line-height:1; }
 .role-text {
-    font-family:'Luckiest Guy'; font-size:42px;
-    color:#fff; -webkit-text-stroke:3px #000;
+    font-family:'Luckiest Guy'; font-size:36px;
+    color:#fff;
+    text-shadow:
+        -2px -2px 0 #000, 2px -2px 0 #000, -2px 2px 0 #000, 2px 2px 0 #000,
+        -2px 0 0 #000, 2px 0 0 #000, 0 -2px 0 #000, 0 2px 0 #000,
+        4px 4px 0 #000;
     letter-spacing:2px; line-height:1;
     margin: 8px 0 14px;
 }
-.role-text.role-liar { text-shadow: 4px 4px 0 #000; }
-.role-text.role-detective { text-shadow: 4px 4px 0 #000; color:#000; -webkit-text-stroke:0; }
+.role-text.role-detective { color:#000; text-shadow: 3px 3px 0 rgba(0,0,0,0.15); }
 .card-label {
     font-family:'Bangers'; font-size:16px;
     background:#000; color:#ffd600;
@@ -308,9 +345,12 @@ body::before {
     letter-spacing:2px; margin-bottom:8px;
 }
 .round-title {
-    font-family:'Luckiest Guy'; font-size:36px;
-    color:#fff; -webkit-text-stroke:3px #000;
-    text-shadow: 4px 4px 0 #e63946;
+    font-family:'Luckiest Guy'; font-size:32px;
+    color:#fff;
+    text-shadow:
+        -2px -2px 0 #000, 2px -2px 0 #000, -2px 2px 0 #000, 2px 2px 0 #000,
+        -2px 0 0 #000, 2px 0 0 #000, 0 -2px 0 #000, 0 2px 0 #000,
+        4px 4px 0 #e63946, 6px 6px 0 #000;
     letter-spacing:2px; line-height:1;
 }
 .round-subtitle {
@@ -348,7 +388,8 @@ body::before {
     background:#e63946; color:#fff;
     border:3px solid #000; border-radius:14px;
     padding:14px; font-family:'Luckiest Guy'; font-size:18px;
-    letter-spacing:2px; -webkit-text-stroke:1px #000;
+    letter-spacing:2px;
+    text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000;
     box-shadow: 5px 5px 0 #000; cursor:pointer;
 }
 .btn-danger:active { transform: translate(2px,2px); box-shadow: 3px 3px 0 #000; }
@@ -364,9 +405,12 @@ body::before {
 /* === VOTING === */
 .voting-content { flex:1; display:flex; flex-direction:column; }
 .voting-title {
-    font-family:'Luckiest Guy'; font-size:32px;
-    color:#fff; -webkit-text-stroke:3px #000;
-    text-shadow: 4px 4px 0 #0066ff;
+    font-family:'Luckiest Guy'; font-size:28px;
+    color:#fff;
+    text-shadow:
+        -2px -2px 0 #000, 2px -2px 0 #000, -2px 2px 0 #000, 2px 2px 0 #000,
+        -2px 0 0 #000, 2px 0 0 #000, 0 -2px 0 #000, 0 2px 0 #000,
+        4px 4px 0 #0066ff, 6px 6px 0 #000;
     letter-spacing:2px; text-align:center;
     margin-bottom:6px; line-height:1.1;
 }
@@ -393,8 +437,9 @@ body::before {
     margin-top:auto; padding:18px;
     background:#e63946; color:#fff;
     border:4px solid #000; border-radius:16px;
-    font-family:'Luckiest Guy'; font-size:22px;
-    letter-spacing:2px; -webkit-text-stroke:2px #000;
+    font-family:'Luckiest Guy'; font-size:20px;
+    letter-spacing:2px;
+    text-shadow: -2px -2px 0 #000, 2px -2px 0 #000, -2px 2px 0 #000, 2px 2px 0 #000;
     box-shadow: 7px 7px 0 #000; cursor:pointer;
     width:100%;
 }
@@ -408,13 +453,23 @@ body::before {
 }
 @keyframes resultPop { 0% { transform: scale(0.2) rotate(-30deg); } 60% { transform: scale(1.2) rotate(10deg); } 100% { transform: scale(1) rotate(0); } }
 .result-title {
-    font-family:'Luckiest Guy'; font-size:44px;
-    -webkit-text-stroke:3px #000; color:#fff;
+    font-family:'Luckiest Guy'; font-size:36px;
+    color:#fff;
     letter-spacing:2px; text-align:center;
     line-height:1;
 }
-.result-title.result-win { text-shadow: 5px 5px 0 #00e676; }
-.result-title.result-lose { text-shadow: 5px 5px 0 #e63946; }
+.result-title.result-win {
+    text-shadow:
+        -2px -2px 0 #000, 2px -2px 0 #000, -2px 2px 0 #000, 2px 2px 0 #000,
+        -2px 0 0 #000, 2px 0 0 #000, 0 -2px 0 #000, 0 2px 0 #000,
+        5px 5px 0 #00e676, 7px 7px 0 #000;
+}
+.result-title.result-lose {
+    text-shadow:
+        -2px -2px 0 #000, 2px -2px 0 #000, -2px 2px 0 #000, 2px 2px 0 #000,
+        -2px 0 0 #000, 2px 0 0 #000, 0 -2px 0 #000, 0 2px 0 #000,
+        5px 5px 0 #e63946, 7px 7px 0 #000;
+}
 
 .meme-card {
     background:#fff; border:5px solid #000;
@@ -427,8 +482,11 @@ body::before {
 .meme-card::before {
     content:'BOOM!'; position:absolute; top:-18px; right:-14px;
     font-family:'Luckiest Guy'; font-size:28px;
-    color:#ffd600; -webkit-text-stroke:3px #000;
-    text-shadow: 4px 4px 0 #000;
+    color:#ffd600;
+    text-shadow:
+        -2px -2px 0 #000, 2px -2px 0 #000, -2px 2px 0 #000, 2px 2px 0 #000,
+        -2px 0 0 #000, 2px 0 0 #000, 0 -2px 0 #000, 0 2px 0 #000,
+        4px 4px 0 #000;
     transform: rotate(15deg);
 }
 .meme-emoji { font-size:50px; line-height:1; margin-bottom:8px; }
@@ -451,7 +509,7 @@ body::before {
 }
 .result-card-reveal span {
     font-family:'Luckiest Guy';
-    -webkit-text-stroke:1px #000;
+    text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000;
 }
 
 .result-votes { width:100%; max-width:340px; }
@@ -481,7 +539,8 @@ body::before {
 .rule-card h3 {
     font-family:'Luckiest Guy'; font-size:22px;
     letter-spacing:1px; margin-bottom:6px;
-    color:#e63946; -webkit-text-stroke:1px #000;
+    color:#e63946;
+    text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000;
 }
 .rule-card p {
     font-family:'Space Grotesk'; font-weight:500;
@@ -493,9 +552,9 @@ body::before {
     background:#e63946; color:#fff;
     border:4px solid #000; border-radius:16px;
     padding:20px; font-family:'Luckiest Guy';
-    font-size:28px; letter-spacing:3px; cursor:pointer;
+    font-size:24px; letter-spacing:3px; cursor:pointer;
     box-shadow: 8px 8px 0 #000;
-    -webkit-text-stroke: 2px #000;
+    text-shadow: -2px -2px 0 #000, 2px -2px 0 #000, -2px 2px 0 #000, 2px 2px 0 #000;
 }
 .btn.btn-primary:active { transform: translate(4px,4px); box-shadow: 4px 4px 0 #000; }
 .btn.btn-large {
